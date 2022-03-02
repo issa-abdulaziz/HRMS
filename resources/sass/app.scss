@@ -1,0 +1,22 @@
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Nunito");
+
+// Variables
+@import "variables";
+
+// Bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+$fa-font-path: "../webfonts";
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/brands";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+
+@import "~datatables.net-dt/css/jquery.dataTables.css";
+@import "~datatables.net-responsive-dt/css/responsive.dataTables.min.css";
+@import "~datatables.net-buttons-dt/css/buttons.dataTables.min.css";
+
+nav ul a.active:hover {
+    color: #ddd;
+}
