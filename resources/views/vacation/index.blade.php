@@ -28,12 +28,14 @@
         @foreach ($vacations as $vacation)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
-            <td><a href="/employee/{{ $vacation->employee->id }}">{{ $vacation->employee->full_name }}</a></td>
+            <td><a
+                href="{{ route('employee.show', $vacation->employee->id) }}">{{ $vacation->employee->full_name }}</a>
+            </td>
             <td>{{ $vacation->date_from }}</td>
             <td>{{ $vacation->date_to }}</td>
             <td>{{ $vacation->days }}</td>
             <td>{{ $vacation->note }}</td>
-            <td><a class="btn btn-success btn-sm" href="/vacation/{{ $vacation->id }}/edit"><i
+            <td><a class="btn btn-success btn-sm" href="{{ route('vacation.edit', $vacation->id) }}"><i
                   class="fas fa-edit"></i></a></td>
             <td>
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
@@ -46,7 +48,9 @@
         @endforeach
       </tbody>
     </table>
-    @include('inc.confirmDeletion', array('title'=>'vacation'))
+    @include('inc.confirmDeletion', [
+        'title' => 'vacation',
+    ])
   @else
     <p>No Vacation Added Yet</p>
   @endif

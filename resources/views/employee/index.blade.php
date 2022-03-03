@@ -26,7 +26,7 @@
         @foreach ($employees as $employee)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
-            <td><a href="/employee/{{ $employee->id }}">{{ $employee->full_name }}</a></td>
+            <td><a href="{{ route('employee.show', $employee->id) }}">{{ $employee->full_name }}</a></td>
             <td>{{ $employee->phone_number }}</td>
             <td>{{ $employee->position }}</td>
             <td>{{ $employee->getVacationDays() }}</td>
@@ -41,7 +41,7 @@
                 <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
               @endif
             </td>
-            <td><a class="btn btn-success btn-sm" href="/employee/{{ $employee->id }}/edit"><i
+            <td><a class="btn btn-success btn-sm" href="{{ route('employee.edit', $employee->id) }}"><i
                   class="fas fa-edit"></i></a></td>
             <td>
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
@@ -54,7 +54,9 @@
         @endforeach
       </tbody>
     </table>
-    @include('inc.confirmDeletion', array('title'=>'employee'))
+    @include('inc.confirmDeletion', [
+        'title' => 'employee',
+    ])
   @else
     <p>No Employee Added Yet</p>
   @endif

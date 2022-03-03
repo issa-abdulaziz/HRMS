@@ -24,7 +24,7 @@
         @foreach ($data as $entry)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
-            <td><a href="/employee/{{ $entry['employee_id'] }}">{{ $entry['employee_name'] }}</a></td>
+            <td><a href="{{ route('employee.show', $entry['employee_id']) }}">{{ $entry['employee_name'] }}</a></td>
             <td>{{ $entry['salary'] }} {{ $currency }}</td>
             <td>{{ $entry['overtimeAmount'] }} {{ $currency }}</td>
             <td>{{ $entry['leewayDiscount'] }} {{ $currency }}</td>

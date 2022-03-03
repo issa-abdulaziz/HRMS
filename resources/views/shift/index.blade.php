@@ -31,7 +31,8 @@
                 <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
               @endif
             </td>
-            <td><a class="btn btn-success btn-sm" href="/shift/{{ $shift->id }}/edit"><i class="fas fa-edit"></i></a>
+            <td><a class="btn btn-success btn-sm" href="{{ route('shift.edit', $shift->id) }}"><i
+                  class="fas fa-edit"></i></a>
             </td>
             <td>
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
@@ -43,7 +44,7 @@
         @endforeach
       </tbody>
     </table>
-    @include('inc.confirmDeletion', array('title'=>'shift'))
+    @include('inc.confirmDeletion', ['title' => 'shift'])
   @else
     <p>No Shifts Yet</p>
   @endif

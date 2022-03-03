@@ -27,12 +27,12 @@
           <tr>
             <td>{{ $loop->index + 1 }}</td>
             <td><a
-                href="/employee/{{ $advancedPayment->employee->id }}">{{ $advancedPayment->employee->full_name }}</a>
+                href="{{ route('employee.show', $advancedPayment->employee->id) }}">{{ $advancedPayment->employee->full_name }}</a>
             </td>
             <td>{{ $advancedPayment->date }}</td>
             <td>{{ $advancedPayment->amount }} {{ $currency }}</td>
             <td title="{{ $advancedPayment->note }}">{{ $advancedPayment->note }}</td>
-            <td><a class="btn btn-success btn-sm" href="/advanced-payment/{{ $advancedPayment->id }}/edit"><i
+            <td><a class="btn btn-success btn-sm" href="{{ route('advanced-payment.edit', $advancedPayment->id) }}"><i
                   class="fas fa-edit"></i></a></td>
             <td>
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
@@ -46,7 +46,9 @@
         @endforeach
       </tbody>
     </table>
-    @include('inc.confirmDeletion', array('title'=>'advanced-payment'))
+    @include('inc.confirmDeletion', [
+        'title' => 'advanced-payment',
+    ])
   @else
     <p>No Advanced Payment Added Yet</p>
   @endif

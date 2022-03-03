@@ -30,7 +30,9 @@
         @foreach ($overtimes as $overtime)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
-            <td><a href="/employee/{{ $overtime->employee->id }}">{{ $overtime->employee->full_name }}</a></td>
+            <td><a
+                href="{{ route('employee.show', $overtime->employee->id) }}">{{ $overtime->employee->full_name }}</a>
+            </td>
             <td>{{ $overtime->date }}</td>
             <td>{{ floor($overtime->time / 60) }}:{{ $overtime->time % 60 }}</td>
             <td>x{{ $overtime->rate }}</td>
@@ -38,7 +40,7 @@
             <td>{{ $overtime->salary }} {{ $currency }}</td>
             <td>{{ $overtime->working_hour }}</td>
             <td>{{ $overtime->note }}</td>
-            <td><a class="btn btn-success btn-sm" href="/overtime/{{ $overtime->id }}/edit"><i
+            <td><a class="btn btn-success btn-sm" href="{{ route('overtime.edit', $overtime->id) }}"><i
                   class="fas fa-edit"></i></a></td>
             <td>
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
@@ -52,7 +54,9 @@
         @endforeach
       </tbody>
     </table>
-    @include('inc.confirmDeletion', array('title'=>'overtime'))
+    @include('inc.confirmDeletion', [
+        'title' => 'overtime',
+    ])
   @else
     <p>No Ovetime Added Yet</p>
   @endif
