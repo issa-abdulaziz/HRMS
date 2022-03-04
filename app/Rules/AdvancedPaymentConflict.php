@@ -3,9 +3,10 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
-use App\Models\Employee;
+use App\Models\AdvancedPayment;
+use Carbon\Carbon;
 
-class AfterHiring implements Rule
+class AdvancedPaymentConflict implements Rule
 {
     private $employee_id;
     /**
@@ -27,7 +28,8 @@ class AfterHiring implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $value >= $this->getHiredAt();
+        $date = new Carbon($value);
+        return AdvancedPayment::where('employee_id', $this->employee_id)->where('date','like',$date->format('Y-m') . '%')->count() == 0;
     }
 
     /**
@@ -37,11 +39,6 @@ class AfterHiring implements Rule
      */
     public function message()
     {
-        return 'Date should be after hiring';
-    }
-    
-    private function getHiredAt() {
-        $employee = Employee::find($this->employee_id);
-        return $employee->hired_at;
+        return 'Employee already take an Advanced Payment in this month';
     }
 }
