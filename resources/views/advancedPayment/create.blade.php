@@ -23,7 +23,7 @@
     </div>
     <div class="form-group">
       <label for="amount">Amount (in {{ $setting->currency }})</label>
-      <input type="number" value="{{ old('amount') }}" id="amount" name="amount" class="form-control" required>
+      <input type="number" value="{{ old('amount') }}" id="amount" name="amount" class="form-control" min="1" required>
     </div>
     <div class="form-group">
       <label for="note">Note</label>

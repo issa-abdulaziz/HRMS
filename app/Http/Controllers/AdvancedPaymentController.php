@@ -7,6 +7,7 @@ use DateTime;
 use App\Models\AdvancedPayment;
 use App\Models\Setting;
 use App\Models\Employee;
+use App\Http\Requests\AdvancedPaymentRequest;
 
 class AdvancedPaymentController extends Controller
 {
@@ -52,33 +53,17 @@ class AdvancedPaymentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AdvancedPaymentRequest $request)
     {
-        if ( !($request->has('employee_id'))) {
-            return redirect()->back()->withInput()->with('error','Employee not selected');
-        }
-        $employee = Employee::find($request->input('employee_id'));
-
-        $this->validate($request,[
-            'date' => 'required|date|after_or_equal:' . $employee->hired_at,
-            'amount' => 'required|numeric',
-            'employee_id' => 'required',
-        ]);
-
-        $employee_id = $request->input('employee_id');
-        $date = new DateTime($request->input('date'));
-        $hasAdvancedPayment = AdvancedPayment::where('employee_id', $employee_id)->whereMonth('date',$date->format('m'))->whereYear('date',$date->format('Y'));
-        if ($hasAdvancedPayment->count()) {
-            return redirect()->back()->withInput()->with('error','Employee already take an Advanced Payment in this month');            
-        }
+        $request->validated();
 
         $advancedPayment = new AdvancedPayment();
-        $advancedPayment->date = $request->input('date');
-        $advancedPayment->amount = $request->input('amount');
-        $advancedPayment->employee_id = $request->input('employee_id');
-        $advancedPayment->note = $request->input('note') ? $request->input('note') : 'N/A';
+        $advancedPayment->date = $request->date;
+        $advancedPayment->amount = $request->amount;
+        $advancedPayment->employee_id = $request->employee_id;
+        $advancedPayment->note = $request->note ? $request->note : 'N/A';
 
-        $employee = Employee::find($request->input('employee_id'));
+        $employee = Employee::find($request->employee_id);
         $employee->advancedPayments()->save($advancedPayment);
 
         return redirect('/advanced-payment')->with('success','Advanced Payment Added Successfully');
@@ -119,35 +104,17 @@ class AdvancedPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AdvancedPaymentRequest $request, $id)
     {
-        if ( !($request->has('employee_id'))) {
-            return redirect()->back()->withInput()->with('error','Employee not selected');
-        }
-        $employee = Employee::find($request->input('employee_id'));
-
-        $this->validate($request,[
-            'date' => 'required|date|after_or_equal:' . $employee->hired_at,
-            'amount' => 'required|numeric',
-            'employee_id' => 'required',
-        ]);
+        $request->validated();
 
         $advancedPayment = AdvancedPayment::find($id);
-        
-        $employee_id = $request->input('employee_id');
-        $newDate = new DateTime($request->input('date'));
-        $oldDate = new DateTime($advancedPayment->date);
-        $hasAdvancedPayment = AdvancedPayment::where('employee_id', $employee_id)->whereMonth('date',$newDate->format('m'))->whereYear('date',$newDate->format('Y'));
-        if ( ($advancedPayment->employee_id == $employee_id && $oldDate->format('Y-m') != $newDate->format('Y-m') && $hasAdvancedPayment->count() ) || ( $advancedPayment->employee_id != $employee_id && $hasAdvancedPayment->count() ) ) {
-            return redirect('/advanced-payment')->with('error','Employee already take an Advanced Payment in this month');
-        }
+        $advancedPayment->date = $request->date;
+        $advancedPayment->amount = $request->amount;
+        $advancedPayment->employee_id = $request->employee_id;
+        $advancedPayment->note = $request->note ? $request->note : 'N/A';
 
-        $advancedPayment->date = $request->input('date');
-        $advancedPayment->amount = $request->input('amount');
-        $advancedPayment->employee_id = $request->input('employee_id');
-        $advancedPayment->note = $request->input('note') ? $request->input('note') : 'N/A';
-
-        $employee = Employee::find($request->input('employee_id'));
+        $employee = Employee::find($request->employee_id);
         $employee->advancedPayments()->save($advancedPayment);
 
         return redirect('/advanced-payment')->with('success','Advanced Payment Edited Successfully');

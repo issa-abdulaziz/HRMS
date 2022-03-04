@@ -9,14 +9,17 @@ use Carbon\Carbon;
 class AdvancedPaymentConflict implements Rule
 {
     private $employee_id;
+    private $advanced_payment_id;
+
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($employee_id)
+    public function __construct($employee_id,$advanced_payment_id)
     {
         $this->employee_id = $employee_id;
+        $this->advanced_payment_id = $advanced_payment_id;
     }
 
     /**
@@ -29,7 +32,7 @@ class AdvancedPaymentConflict implements Rule
     public function passes($attribute, $value)
     {
         $date = new Carbon($value);
-        return AdvancedPayment::where('employee_id', $this->employee_id)->where('date','like',$date->format('Y-m') . '%')->count() == 0;
+        return AdvancedPayment::where('employee_id', $this->employee_id)->where('date','like',$date->format('Y-m') . '%')->where('id', '!=', $this->advanced_payment_id)->count() == 0;
     }
 
     /**
