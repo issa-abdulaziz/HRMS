@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\Overtime;
 use App\Models\AdvancedPayment;
 use App\Models\Attendance;
+use App\Http\Requests\EmployeeRequest;
 
 class EmployeesController extends Controller
 {
@@ -52,31 +53,23 @@ class EmployeesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
-        $this->validate($request,[
-            'full_name' => 'required|min:3|max:50',
-            'date_of_birth' => 'required|date',
-            'city' => 'required|min:3|max:50',
-            'phone_number' => 'required|min:8|max:50',
-            'hired_at' => 'required|date',
-            'position' => 'required|min:3|max:50',
-            'salary' => 'required|integer',
-            'shift_id' => 'required',
-        ]);
+        $request->validated();
+
         $employee = new Employee();
-        $employee->full_name = $request->input('full_name');
-        $employee->date_of_birth = $request->input('date_of_birth');
-        $employee->city = $request->input('city');
-        $employee->phone_number = $request->input('phone_number');
-        $employee->hired_at = $request->input('hired_at');
-        $employee->position = $request->input('position');
-        $employee->salary = $request->input('salary');
+        $employee->full_name = $request->full_name;
+        $employee->date_of_birth = $request->date_of_birth;
+        $employee->city = $request->city;
+        $employee->phone_number = $request->phone_number;
+        $employee->hired_at = $request->hired_at;
+        $employee->position = $request->position;
+        $employee->salary = $request->salary;
         $employee->active = $request->has('active') ? 1 : 0;
         $employee->taken_vacations_days = 0;
-        $employee->vacation_start_count_at = $request->input('vacation_start_count_at') ? $request->input('vacation_start_count_at') . '-1' : null;
+        $employee->vacation_start_count_at = $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null;
 
-        $shift = Shift::find($request->input('shift_id'));
+        $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
         return redirect('/employee')->with('success','employee Added Successfully');
@@ -144,30 +137,22 @@ class EmployeesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EmployeeRequest $request, $id)
     {
-        $this->validate($request,[
-            'full_name' => 'required|min:3|max:50',
-            'date_of_birth' => 'required|date',
-            'city' => 'required|min:3|max:50',
-            'phone_number' => 'required|min:8|max:50',
-            'hired_at' => 'required|date',
-            'position' => 'required|min:3|max:50',
-            'salary' => 'required|integer',
-            'shift_id' => 'required',
-        ]);
-        $employee = Employee::find($id);
-        $employee->full_name = $request->input('full_name');
-        $employee->date_of_birth = $request->input('date_of_birth');
-        $employee->city = $request->input('city');
-        $employee->phone_number = $request->input('phone_number');
-        $employee->hired_at = $request->input('hired_at');
-        $employee->position = $request->input('position');
-        $employee->salary = $request->input('salary');
-        $employee->active = $request->has('active') ? 1 : 0;
-        $employee->vacation_start_count_at = $request->input('vacation_start_count_at') ? $request->input('vacation_start_count_at') . '-1' : null;
+        $request->validated();
 
-        $shift = Shift::find($request->input('shift_id'));
+        $employee = Employee::find($id);
+        $employee->full_name = $request->full_name;
+        $employee->date_of_birth = $request->date_of_birth;
+        $employee->city = $request->city;
+        $employee->phone_number = $request->phone_number;
+        $employee->hired_at = $request->hired_at;
+        $employee->position = $request->position;
+        $employee->salary = $request->salary;
+        $employee->active = $request->has('active') ? 1 : 0;
+        $employee->vacation_start_count_at = $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null;
+
+        $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
         return redirect('/employee')->with('success','employee Edited Successfully');
