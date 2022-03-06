@@ -50,9 +50,9 @@ class ShiftsController extends Controller
         $request->validated();
 
         $shift = new Shift();
-        $shift->title = $request->input('title');
-        $shift->starting_time = $request->input('starting_time');
-        $shift->leaving_time = $request->input('leaving_time');
+        $shift->title = $request->title;
+        $shift->starting_time = $request->starting_time;
+        $shift->leaving_time = $request->leaving_time;
         $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
         $shift->save();
         return redirect('/shift')->with('success','Shift Added Successfully');
@@ -96,9 +96,9 @@ class ShiftsController extends Controller
         $request->validated();
         
         $shift = Shift::find($id);
-        $shift->title = $request->input('title');
-        $shift->starting_time = $request->input('starting_time');
-        $shift->leaving_time = $request->input('leaving_time');
+        $shift->title = $request->title;
+        $shift->starting_time = $request->starting_time;
+        $shift->leaving_time = $request->leaving_time;
         $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
         $shift->save();
         return redirect('/shift')->with('success','Shift Updated Successfully');
