@@ -4,18 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Setting;
+use App\Http\Requests\SettingRequest;
 
 class SettingsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
     /**
      * Display a listing of the resource.
      *
@@ -27,17 +19,10 @@ class SettingsController extends Controller
         return view('setting.edit')->with('setting',$setting);   
     }
 
-    public function update(Request $request, $id)
+    public function update(SettingRequest $request, $id)
     {
-        $this->validate($request,[
-            'weekend' => 'required|min:6|max:9',
-            'normalOvertimeRate' => 'required|numeric|between:1,99.999',
-            'weekendOvertimeRate' => 'required|numeric|between:1,99.999',
-            'leewayDiscountRate' => 'required|numeric|between:1,99.999',
-            'vacationRate' => 'required|numeric|between:1,99.999',
-            'takingVacationAllowedAfter' => 'required|integer|between:1,100',
-            'currency' => 'required|min:2|max:4',
-        ]);
+        $request->validated();
+
         $setting = Setting::find($id);
         $setting->weekend = $request->input('weekend');
         $setting->normal_overtime_rate = $request->input('normalOvertimeRate');
