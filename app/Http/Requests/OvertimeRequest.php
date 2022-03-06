@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\AfterHiring;
 use App\Rules\OvertimeConflict;
+use App\Models\Employee;
 
 class OvertimeRequest extends FormRequest
 {
@@ -32,7 +32,7 @@ class OvertimeRequest extends FormRequest
             'date' => [
                 'required',
                 'date',
-                new AfterHiring($this->input('employee_id')),
+                'after_or_equal:' . Employee::find($this->employee_id)->hired_at,
                 new OvertimeConflict($this->employee_id, $this->overtime)
             ],
             'time' => 'required|integer|min:1',

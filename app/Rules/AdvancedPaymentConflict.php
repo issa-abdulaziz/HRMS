@@ -31,8 +31,9 @@ class AdvancedPaymentConflict implements Rule
      */
     public function passes($attribute, $value)
     {
-        $date = new Carbon($value);
-        return AdvancedPayment::where('employee_id', $this->employee_id)->where('date','like',$date->format('Y-m') . '%')->where('id', '!=', $this->advanced_payment_id)->count() == 0;
+        return AdvancedPayment::where('employee_id', $this->employee_id)
+        ->where('date','like', Carbon::parse($value)->format('Y-m') . '%')
+        ->where('id', '!=', $this->advanced_payment_id)->count() == 0;
     }
 
     /**
