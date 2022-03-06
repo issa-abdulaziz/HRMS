@@ -24,13 +24,13 @@ class SettingsController extends Controller
         $request->validated();
 
         $setting = Setting::find($id);
-        $setting->weekend = $request->input('weekend');
-        $setting->normal_overtime_rate = $request->input('normalOvertimeRate');
-        $setting->weekend_overtime_rate = $request->input('weekendOvertimeRate');
-        $setting->leeway_discount_rate = $request->input('leewayDiscountRate');
-        $setting->vacation_rate = $request->input('vacationRate');
-        $setting->taking_vacation_allowed_after = $request->input('takingVacationAllowedAfter');
-        $setting->currency = $request->input('currency');
+        $setting->weekend = $request->weekend;
+        $setting->normal_overtime_rate = $request->normalOvertimeRate;
+        $setting->weekend_overtime_rate = $request->weekendOvertimeRate;
+        $setting->leeway_discount_rate = $request->leewayDiscountRate;
+        $setting->vacation_rate = $request->vacationRate;
+        $setting->taking_vacation_allowed_after = $request->takingVacationAllowedAfter;
+        $setting->currency = $request->currency;
         $setting->save();
         return redirect('/setting')->with('success','Setting Updated Successfully');
     }
