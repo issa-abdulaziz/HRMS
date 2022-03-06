@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Shift;
+use App\Http\Requests\ShiftRequest;
 
 class ShiftsController extends Controller
 {
@@ -44,13 +45,10 @@ class ShiftsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ShiftRequest $request)
     {
-        $this->validate($request,[
-            'title' => 'required|max:50',
-            'starting_time' => 'required|date_format:H:i',
-            'leaving_time' => 'required|date_format:H:i',
-        ]);
+        $request->validated();
+
         $shift = new Shift();
         $shift->title = $request->input('title');
         $shift->starting_time = $request->input('starting_time');
@@ -93,13 +91,10 @@ class ShiftsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ShiftRequest $request, $id)
     {
-        $this->validate($request,[
-            'title' => 'required',
-            'starting_time' => 'required',
-            'leaving_time' => 'required',
-        ]);
+        $request->validated();
+        
         $shift = Shift::find($id);
         $shift->title = $request->input('title');
         $shift->starting_time = $request->input('starting_time');

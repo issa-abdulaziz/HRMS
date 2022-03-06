@@ -32,6 +32,7 @@ class EmployeeRequest extends FormRequest
             'position' => 'required|min:3|max:50',
             'salary' => 'required|integer',
             'shift_id' => 'required',
+            'vacation_start_count_at' => 'nullable|date_format:Y-m'
         ];
     }
 }

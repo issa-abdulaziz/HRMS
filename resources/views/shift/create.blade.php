@@ -8,7 +8,7 @@
     @csrf
     <div class="form-group">
       <label for="title">Title</label>
-      <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control" required
+      <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-control" required minlength="3"
         maxlength="50">
     </div>
     <div class="form-group">
