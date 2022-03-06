@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\AdvancedPaymentConflict;
-use App\Models\Employee;
+use App\Rules\AfterHiring;
 
 class AdvancedPaymentRequest extends FormRequest
 {
@@ -32,8 +32,8 @@ class AdvancedPaymentRequest extends FormRequest
             'date' => [
                 'required',
                 'date',
-                'after_or_equal:' . Employee::find($this->employee_id)->hired_at,
-                new AdvancedPaymentConflict($this->employee_id, $this->advanced_payment)
+                new AfterHiring($this->employee_id),
+                new AdvancedPaymentConflict($this->employee_id, $this->advanced_payment),
             ],
             'amount' => 'required|numeric|min:1',
         ];
