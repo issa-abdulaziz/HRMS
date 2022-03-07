@@ -10,13 +10,14 @@ class AdvancedPaymentConflict implements Rule
 {
     private $employee_id;
     private $advanced_payment_id;
+    private $date;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($employee_id,$advanced_payment_id)
+    public function __construct($employee_id, $advanced_payment_id)
     {
         $this->employee_id = $employee_id;
         $this->advanced_payment_id = $advanced_payment_id;
@@ -31,8 +32,9 @@ class AdvancedPaymentConflict implements Rule
      */
     public function passes($attribute, $value)
     {
+        $this->date = Carbon::parse($value)->format('Y-m');
         return AdvancedPayment::where('employee_id', $this->employee_id)
-        ->where('date','like', Carbon::parse($value)->format('Y-m') . '%')
+        ->where('date','like', $this->date . '%')
         ->where('id', '!=', $this->advanced_payment_id)->count() == 0;
     }
 
@@ -43,6 +45,6 @@ class AdvancedPaymentConflict implements Rule
      */
     public function message()
     {
-        return 'Employee already take an Advanced Payment in this month';
+        return 'Employee already take an Advanced Payment in ' . $this->date;
     }
 }

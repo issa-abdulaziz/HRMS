@@ -8,6 +8,7 @@ use App\Models\Employee;
 class AfterHiring implements Rule
 {
     private $employee_id;
+    private $hiredAt;
     /**
      * Create a new rule instance.
      *
@@ -27,7 +28,8 @@ class AfterHiring implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $value >= $this->Employee::find($this->employee_id)->hired_at;
+        $this->hiredAt = Employee::find($this->employee_id)->hired_at;
+        return $value >= $this->hiredAt;
     }
 
     /**
@@ -37,6 +39,6 @@ class AfterHiring implements Rule
      */
     public function message()
     {
-        return 'Date should be after hiring';
+        return 'Date should be after hiring ' . $this->hiredAt;
     }
 }

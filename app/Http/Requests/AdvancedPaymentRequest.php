@@ -32,7 +32,7 @@ class AdvancedPaymentRequest extends FormRequest
             'date' => [
                 'required',
                 'date',
-                new AfterHiring($this->employee_id),
+                new AfterHiring($this->employee_id, $this->date),
                 new AdvancedPaymentConflict($this->employee_id, $this->advanced_payment),
             ],
             'amount' => 'required|numeric|min:1',

@@ -9,6 +9,7 @@ class OvertimeConflict implements Rule
 {
     private $employee_id;
     private $overtime_id;
+    private $date;
 
     /**
      * Create a new rule instance.
@@ -30,6 +31,7 @@ class OvertimeConflict implements Rule
      */
     public function passes($attribute, $value)
     {
+        $this->date = $value;
         return Overtime::where('employee_id', $this->employee_id)->where('date',$value)->where('id', '!=', $this->overtime_id)->count() == 0;
     }
 
@@ -40,6 +42,6 @@ class OvertimeConflict implements Rule
      */
     public function message()
     {
-        return 'Employee already has an overtime in this date';
+        return 'Employee already has an overtime in ' . $this->date;
     }
 }
