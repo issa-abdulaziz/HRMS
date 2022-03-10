@@ -23,7 +23,7 @@ class SettingsController extends Controller
     {
         $request->validated();
 
-        $setting = Setting::find($id);
+        $setting = Setting::findOrFail($id);
         $setting->weekend = $request->weekend;
         $setting->normal_overtime_rate = $request->normalOvertimeRate;
         $setting->weekend_overtime_rate = $request->weekendOvertimeRate;

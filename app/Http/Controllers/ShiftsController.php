@@ -77,10 +77,7 @@ class ShiftsController extends Controller
      */
     public function edit($id)
     {
-        $shift = Shift::find($id);
-        if (is_null($shift)){
-            return redirect('/shift')->with('error','this id does not exist');
-        }
+        $shift = Shift::findOrFail($id);
         return view('shift.edit')->with('shift',$shift);
     }
 
@@ -95,7 +92,7 @@ class ShiftsController extends Controller
     {
         $request->validated();
         
-        $shift = Shift::find($id);
+        $shift = Shift::findOrFail($id);
         $shift->title = $request->title;
         $shift->starting_time = $request->starting_time;
         $shift->leaving_time = $request->leaving_time;
@@ -112,7 +109,7 @@ class ShiftsController extends Controller
      */
     public function destroy($id)
     {
-        $shift = Shift::find($id);
+        $shift = Shift::findOrFail($id);
         $shift->delete();
         return redirect('/shift')->with('success','Shift deleted Successfully');
     }

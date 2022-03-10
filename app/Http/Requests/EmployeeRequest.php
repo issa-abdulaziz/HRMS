@@ -31,7 +31,7 @@ class EmployeeRequest extends FormRequest
             'hired_at' => 'required|date',
             'position' => 'required|min:3|max:50',
             'salary' => 'required|integer',
-            'shift_id' => 'required',
+            'shift_id' => 'required|exists:shifts,id',
             'vacation_start_count_at' => 'nullable|date_format:Y-m'
         ];
     }

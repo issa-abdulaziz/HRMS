@@ -80,7 +80,7 @@ class OvertimesController extends Controller
      */
     public function show($id)
     {
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
         return view('overtime.show')->with(['overtime' => $overtime, 'setting' => $this->setting]);
     }
 
@@ -92,10 +92,7 @@ class OvertimesController extends Controller
      */
     public function edit($id)
     {
-        $overtime = Overtime::find($id);
-        if (is_null($overtime)){
-            return redirect('/overtime')->with('error','this id does not exist');
-        }
+        $overtime = Overtime::findOrFail($id);
         $employees = Employee::select('id', 'full_name')->where('active',1)->orderBy('full_name','asc')->get();
         return view('overtime.edit')->with(['overtime' => $overtime, 'employees' => $employees, 'setting' => $this->setting]);
     }
@@ -111,7 +108,7 @@ class OvertimesController extends Controller
     {
         $request->validated();
 
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
         $overtime->date = $request->date;
         $overtime->time = $request->time;
         $overtime->rate = $request->rate;
@@ -135,13 +132,13 @@ class OvertimesController extends Controller
      */
     public function destroy($id)
     {
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
         $overtime->delete();
         return redirect('/overtime')->with('success','Overtime Deleted Successfully');
     }
 
     public function getHourlyPrice(Request $request){
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::findOrFail($request->employee_id);
 
         return response()->json([
             'hourly_price' => $employee->getHourlyPrice(),

@@ -77,7 +77,7 @@ class AdvancedPaymentController extends Controller
      */
     public function show($id)
     {
-        $advancedPayment = AdvancedPayment::find($id);
+        $advancedPayment = AdvancedPayment::findOrFail($id);
         return view('advancedPayment.show')->with(['advancedPayment' => $advancedPayment, 'setting' => $this->setting]);
     }
 
@@ -89,10 +89,7 @@ class AdvancedPaymentController extends Controller
      */
     public function edit($id)
     {
-        $advancedPayment = AdvancedPayment::find($id);
-        if (is_null($advancedPayment)){
-            return redirect('/advanced-payment')->with('error','this id does not exist');
-        }
+        $advancedPayment = AdvancedPayment::findOrFail($id);
         $employees = Employee::select('id', 'full_name')->where('active',1)->orderBy('full_name','asc')->get();
         return view('advancedPayment.edit')->with(['advancedPayment' => $advancedPayment ,'employees' => $employees, 'setting' => $this->setting]);
     }
@@ -108,7 +105,7 @@ class AdvancedPaymentController extends Controller
     {
         $request->validated();
 
-        $advancedPayment = AdvancedPayment::find($id);
+        $advancedPayment = AdvancedPayment::findOrFail($id);
         $advancedPayment->date = $request->date;
         $advancedPayment->amount = $request->amount;
         $advancedPayment->employee_id = $request->employee_id;
@@ -128,13 +125,13 @@ class AdvancedPaymentController extends Controller
      */
     public function destroy($id)
     {
-        $advancedPayment = AdvancedPayment::find($id);
+        $advancedPayment = AdvancedPayment::findorFail($id);
         $advancedPayment->delete();
         return redirect('/advanced-payment')->with('success','Advanced Pyament Deleted Successfully');
     }
     
     public function getData(Request $request) {
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::findOrFail($request->employee_id);
         return response()->json([
             'hired_at' => $employee->hired_at,
         ]);

@@ -95,11 +95,7 @@ class VacationController extends Controller
      */
     public function edit($id)
     {
-        $vacation = Vacation::find($id);
-        if (is_null($vacation)){
-            return redirect()->route('vacation.index')->with('error','this id does not exist');
-        }
-        
+        $vacation = Vacation::findOrFail($id);
         $vacationDays = $vacation->employee->getVacationDays();
         $thisVacationDays = $vacation->days;
         $totalVacationDays = $vacationDays + $thisVacationDays;
@@ -118,9 +114,9 @@ class VacationController extends Controller
     {
         $request->validated();
 
+        $vacation = Vacation::findOrFail($id);
         $employee = Employee::find($request->employee_id);
         
-        $vacation = Vacation::findOrFail($id);
         $oldVacationDays = $vacation->days;
         $vacationDays = $request->days;
 
@@ -144,7 +140,7 @@ class VacationController extends Controller
      */
     public function destroy($id)
     {
-        $vacation = Vacation::find($id);
+        $vacation = Vacation::findOrFail($id);
         $vacation->employee->taken_vacations_days -= $vacation->days;
         $vacation->employee->save();
         $vacation->delete();
@@ -152,7 +148,7 @@ class VacationController extends Controller
     }
 
     public function getData(Request $request) {
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::findOrFail($request->employee_id);
         return response()->json([
             'vacationStartCountAt' => $employee->getTakingVacationStartAt(),
             'vacationDays' => $employee->getVacationDays(),

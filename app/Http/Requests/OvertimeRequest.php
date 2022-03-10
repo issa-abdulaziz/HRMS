@@ -28,7 +28,7 @@ class OvertimeRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => 'required',
+            'employee_id' => 'required|exists:employees,id',
             'date' => [
                 'required',
                 'date',

@@ -83,7 +83,7 @@ class EmployeesController extends Controller
      */
     public function show($id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::findOrFail($id);
 
         $date = date('Y-m');
 
@@ -122,10 +122,7 @@ class EmployeesController extends Controller
      */
     public function edit($id)
     {
-        $employee = Employee::find($id);
-        if (is_null($employee)){
-            return redirect('/employee')->with('error','this id does not exist');
-        }
+        $employee = Employee::findOrFail($id);
         $shifts = Shift::select('id', 'title')->get();
         return view('employee.edit')->with(['employee' => $employee, 'shifts' => $shifts, 'currency' => $this->setting->currency]);
     }
@@ -141,7 +138,7 @@ class EmployeesController extends Controller
     {
         $request->validated();
 
-        $employee = Employee::find($id);
+        $employee = Employee::findOrFail($id);
         $employee->full_name = $request->full_name;
         $employee->date_of_birth = $request->date_of_birth;
         $employee->city = $request->city;
@@ -166,13 +163,13 @@ class EmployeesController extends Controller
      */
     public function destroy($id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::findOrFail($id);
         $employee->delete();
         return redirect('/employee')->with('success','Employee Deleted Successfully');
     }
     public function getData(Request $request){
         
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::findOrFail($request->employee_id);
 
         $months_arr = []; // can't be array, should be collection inorder to use the map function
         for ($t = 0; $t < 12; $t++) {
