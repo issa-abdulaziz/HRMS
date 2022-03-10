@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 use DateTime;
+use Carbon\Carbon;
 use App\Models\Employee;
 use App\Models\Attendance;
 use App\Models\Shift;
@@ -74,15 +75,14 @@ class AttendanceController extends Controller
 
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
-            'employee_id' => 'required',
-            'date' => 'required',
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date|date_format:Y-m-d',
             'present' => 'required',
         ]);
-
         if ($validator->passes()) {
             $employee = Employee::find($request->employee_id);
             $shift = $employee->shift;
-            $attendance = Attendance::where('employee_id', '=', $request->employee_id)->where('date', '=', $request->date)->first();
+            $attendance = Attendance::where('employee_id', $request->employee_id)->where('date', $request->date)->first();
             
             if ( $attendance == null ) {
                 $attendance = new Attendance();    
@@ -102,7 +102,7 @@ class AttendanceController extends Controller
                 $leaving_leeway = $leaving_diff->h * 60 + $leaving_diff->i;
 
                 if ($shift->across_midnight) {
-                    $midnight = new DateTime('2021-01-01T00:00:00.012345Z');
+                    $midnight = today();
                     $starting_time_min = $starting_time->diff($midnight)->h * 60 + $starting_time->diff($midnight)->i;
                     $time_in_min = $time_in->diff($midnight)->h * 60 + $time_in->diff($midnight)->i;
 
