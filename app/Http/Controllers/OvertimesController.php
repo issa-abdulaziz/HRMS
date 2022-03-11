@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\OvertimeRequest;
 use DateTime;
 use App\Models\Overtime;
 use App\Models\Setting;
@@ -51,40 +52,21 @@ class OvertimesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(OvertimeRequest $request)
     {
-        if ( !($request->has('employee_id'))) {
-            return redirect()->back()->withInput()->with('error','Employee not selected');
-        }
-        $employee = Employee::find($request->input('employee_id'));
-
-        $this->validate($request,[
-            'date' => 'required|date|after_or_equal:' . $employee->hired_at,
-            'time' => 'required|integer',
-            'rate' => 'required|numeric|between:1,99.999',
-            'salary' => 'required|integer',
-            'working_hour' => 'required|numeric|between:1,99.999',
-            'amount' => 'required|numeric',
-            'employee_id' => 'required',
-        ]);
-        
-        $employee_id = $request->input('employee_id');
-        $date = $request->input('date');
-        $hasOvertime = Overtime::where('employee_id', $employee_id)->where('date',$date);
-        if ($hasOvertime->count()) {
-            return redirect()->back()->withInput()->with('error','Employee already has an overtime in this date');            
-        }
+        $request->validated();
 
         $overtime = new Overtime();
-        $overtime->date = $date;
-        $overtime->time = $request->input('time');
-        $overtime->rate = $request->input('rate');
-        $overtime->salary = $request->input('salary');
-        $overtime->working_hour = $request->input('working_hour');
-        $overtime->amount = $request->input('amount');
-        $overtime->employee_id = $employee_id;
-        $overtime->note = $request->input('note') ? $request->input('note') : 'N/A';
-
+        $overtime->date = $request->date;
+        $overtime->time = $request->time;
+        $overtime->rate = $request->rate;
+        $overtime->salary = $request->salary;
+        $overtime->working_hour = $request->working_hour;
+        $overtime->amount = $request->amount;
+        $overtime->employee_id = $request->employee_id;
+        $overtime->note = $request->note ? $request->note : 'N/A';
+        
+        $employee = Employee::find($request->employee_id);
         $employee->overtimes()->save($overtime);
 
         return redirect('/overtime')->with('success','Overtime Added Successfully');
@@ -98,7 +80,7 @@ class OvertimesController extends Controller
      */
     public function show($id)
     {
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
         return view('overtime.show')->with(['overtime' => $overtime, 'setting' => $this->setting]);
     }
 
@@ -110,10 +92,7 @@ class OvertimesController extends Controller
      */
     public function edit($id)
     {
-        $overtime = Overtime::find($id);
-        if (is_null($overtime)){
-            return redirect('/overtime')->with('error','this id does not exist');
-        }
+        $overtime = Overtime::findOrFail($id);
         $employees = Employee::select('id', 'full_name')->where('active',1)->orderBy('full_name','asc')->get();
         return view('overtime.edit')->with(['overtime' => $overtime, 'employees' => $employees, 'setting' => $this->setting]);
     }
@@ -125,38 +104,21 @@ class OvertimesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(OvertimeRequest $request, $id)
     {
-        $employee = Employee::find($request->input('employee_id'));
+        $request->validated();
 
-        $this->validate($request,[
-            'date' => 'required|date|after_or_equal:' . $employee->hired_at,
-            'time' => 'required|integer',
-            'rate' => 'required|numeric|between:1,99.999',
-            'salary' => 'required|integer',
-            'working_hour' => 'required|numeric|between:1,99.999',
-            'amount' => 'required|numeric',
-            'employee_id' => 'required',
-        ]);
-
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
+        $overtime->date = $request->date;
+        $overtime->time = $request->time;
+        $overtime->rate = $request->rate;
+        $overtime->salary = $request->salary;
+        $overtime->working_hour = $request->working_hour;
+        $overtime->amount = $request->amount;
+        $overtime->employee_id = $request->employee_id;
+        $overtime->note = $request->note ? $request->note : 'N/A';
         
-        $employee_id = $request->input('employee_id');
-        $date = $request->input('date');
-        $hasOvertime = Overtime::where('employee_id', $employee_id)->where('date',$date);
-        if ( ($overtime->employee_id == $employee_id && $overtime->date != $date && $hasOvertime->count() ) || ( $overtime->employee_id != $employee_id && $hasOvertime->count() ) ) {
-            return redirect()->back()->withInput()->with('error','Employee already has an overtime in this date');            
-        }
-
-        $overtime->date = $date;
-        $overtime->time = $request->input('time');
-        $overtime->rate = $request->input('rate');
-        $overtime->salary = $request->input('salary');
-        $overtime->working_hour = $request->input('working_hour');
-        $overtime->amount = $request->input('amount');
-        $overtime->employee_id = $employee_id;
-        $overtime->note = $request->input('note') ? $request->input('note') : 'N/A';
-
+        $employee = Employee::find($request->employee_id);
         $employee->overtimes()->save($overtime);
 
         return redirect('/overtime')->with('success','Overtime Edited Successfully');
@@ -170,13 +132,13 @@ class OvertimesController extends Controller
      */
     public function destroy($id)
     {
-        $overtime = Overtime::find($id);
+        $overtime = Overtime::findOrFail($id);
         $overtime->delete();
         return redirect('/overtime')->with('success','Overtime Deleted Successfully');
     }
 
     public function getHourlyPrice(Request $request){
-        $employee = Employee::find($request->employee_id);
+        $employee = Employee::findOrFail($request->employee_id);
 
         return response()->json([
             'hourly_price' => $employee->getHourlyPrice(),

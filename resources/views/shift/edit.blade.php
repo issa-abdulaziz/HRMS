@@ -10,17 +10,17 @@
     <div class="form-group">
       <label for="title">Title</label>
       <input type="text" value="{{ $shift->title }}" id="title" name="title" class="form-control" required
-        maxlength="50">
+        minlength="3" maxlength="50">
     </div>
     <div class="form-group">
       <label for="starting_time">Starting Time</label>
-      <input type="time" value="{{ $shift->starting_time }}" id="starting_time" name="starting_time"
-        class="form-control" required>
+      <input type="time" value="{{ Carbon\Carbon::parse($shift->starting_time)->format('H:i') }}" id="starting_time"
+        name="starting_time" class="form-control" required>
     </div>
     <div class="form-group">
       <label for="leaving_time">Leaving Time</label>
-      <input type="time" value="{{ $shift->leaving_time }}" id="leaving_time" name="leaving_time" class="form-control"
-        required>
+      <input type="time" value="{{ Carbon\Carbon::parse($shift->leaving_time)->format('H:i') }}" id="leaving_time"
+        name="leaving_time" class="form-control" required>
     </div>
     <div class="form-group">
       <div class="custom-control custom-checkbox">

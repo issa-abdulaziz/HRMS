@@ -25,7 +25,7 @@
     <div class="form-group">
       <label for="amount">Amount (in {{ $setting->currency }})</label>
       <input type="number" value="{{ $advancedPayment->amount }}" id="amount" name="amount" class="form-control"
-        required>
+        min="1" required>
     </div>
     <div class="form-group">
       <label for="note">Note</label>
