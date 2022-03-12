@@ -38,4 +38,11 @@ class AdvancedPaymentRequest extends FormRequest
             'amount' => 'required|numeric|min:1',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'employee_id.required' => 'Please select employee first',
+        ];
+    }
 }
