@@ -12,7 +12,8 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Overtime</h6>
-                <h2 class="text-white mt-1">{{ $overtimeTotal }} <small>{{ $currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $overtimeTotal }} <small>{{ session('setting')->currency }}</small>
+                </h2>
               </div>
             </div>
           </div>
@@ -27,7 +28,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Attendance</h6>
-                <h2 class="text-white mt-1">{{ $absenceTotal }} <small>{{ $currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $absenceTotal }} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>
@@ -42,7 +43,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Leeway</h6>
-                <h2 class="text-white mt-1">{{ $leewayTotal }} <small>{{ $currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $leewayTotal }} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>
@@ -57,7 +58,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Overall</h6>
-                <h2 class="text-white mt-1">{{ $overall }} <small>{{ $currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $overall }} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>

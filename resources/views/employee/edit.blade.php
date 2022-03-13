@@ -33,7 +33,7 @@
         minlength="3" maxlength="50">
     </div>
     <div class="form-group">
-      <label for="salary">Salary (in {{ $currency }})</label>
+      <label for="salary">Salary (in {{ session('setting')->currency }})</label>
       <input type="number" value="{{ $employee->salary }}" id="salary" name="salary" class="form-control" required>
     </div>
     <div class="form-group">

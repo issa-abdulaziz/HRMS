@@ -4,24 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\OvertimeRequest;
-use DateTime;
 use App\Models\Overtime;
-use App\Models\Setting;
 use App\Models\Employee;
 
 class OvertimesController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    private $setting;
-    public function __construct()
-    {
-        $this->setting = Setting::first();
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -30,9 +17,9 @@ class OvertimesController extends Controller
     public function index(Request $request)
     {
         $params = $request->except('_token');
-        $overtimes = Overtime::filter($params)->orderBy('date','desc')->get();
+        $overtimes = Overtime::filter($params)->orderBy('date', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
-        return view('overtime.index')->with(['overtimes' => $overtimes, 'currency' => $this->setting->currency, 'date' => $date]);
+        return view('overtime.index')->with(['overtimes' => $overtimes, 'date' => $date]);
     }
 
     /**
@@ -42,8 +29,8 @@ class OvertimesController extends Controller
      */
     public function create()
     {
-        $employees = Employee::select('id', 'full_name')->where('active',1)->orderBy('full_name','asc')->get();
-        return view('overtime.create')->with(['employees' => $employees, 'setting' => $this->setting]);
+        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        return view('overtime.create')->with(['employees' => $employees]);
     }
 
     /**
@@ -65,11 +52,11 @@ class OvertimesController extends Controller
         $overtime->amount = $request->amount;
         $overtime->employee_id = $request->employee_id;
         $overtime->note = $request->note ? $request->note : 'N/A';
-        
+
         $employee = Employee::find($request->employee_id);
         $employee->overtimes()->save($overtime);
 
-        return redirect('/overtime')->with('success','Overtime Added Successfully');
+        return redirect('/overtime')->with('success', 'Overtime Added Successfully');
     }
 
     /**
@@ -81,7 +68,7 @@ class OvertimesController extends Controller
     public function show($id)
     {
         $overtime = Overtime::findOrFail($id);
-        return view('overtime.show')->with(['overtime' => $overtime, 'setting' => $this->setting]);
+        return view('overtime.show')->with(['overtime' => $overtime]);
     }
 
     /**
@@ -93,8 +80,8 @@ class OvertimesController extends Controller
     public function edit($id)
     {
         $overtime = Overtime::findOrFail($id);
-        $employees = Employee::select('id', 'full_name')->where('active',1)->orderBy('full_name','asc')->get();
-        return view('overtime.edit')->with(['overtime' => $overtime, 'employees' => $employees, 'setting' => $this->setting]);
+        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        return view('overtime.edit')->with(['overtime' => $overtime, 'employees' => $employees]);
     }
 
     /**
@@ -117,11 +104,11 @@ class OvertimesController extends Controller
         $overtime->amount = $request->amount;
         $overtime->employee_id = $request->employee_id;
         $overtime->note = $request->note ? $request->note : 'N/A';
-        
+
         $employee = Employee::find($request->employee_id);
         $employee->overtimes()->save($overtime);
 
-        return redirect('/overtime')->with('success','Overtime Edited Successfully');
+        return redirect('/overtime')->with('success', 'Overtime Edited Successfully');
     }
 
     /**
@@ -134,10 +121,11 @@ class OvertimesController extends Controller
     {
         $overtime = Overtime::findOrFail($id);
         $overtime->delete();
-        return redirect('/overtime')->with('success','Overtime Deleted Successfully');
+        return redirect('/overtime')->with('success', 'Overtime Deleted Successfully');
     }
 
-    public function getHourlyPrice(Request $request){
+    public function getHourlyPrice(Request $request)
+    {
         $employee = Employee::findOrFail($request->employee_id);
 
         return response()->json([
@@ -148,9 +136,10 @@ class OvertimesController extends Controller
         ]);
     }
 
-    public function getRate(Request $request){
+    public function getRate(Request $request)
+    {
         return response()->json([
-            'rate' => $this->setting->getRate($request->date),
+            'rate' => session('setting')->getRate($request->date),
         ]);
     }
 }

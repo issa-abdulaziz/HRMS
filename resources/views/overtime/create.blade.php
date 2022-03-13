@@ -43,13 +43,13 @@
         max="99.999" step="0.25" required>
     </div>
     <div class="form-group">
-      <label for="hourly_price">Hourly Price (in {{ $setting->currency }})</label>
+      <label for="hourly_price">Hourly Price (in {{ session('setting')->currency }})</label>
       <input type="number" readonly step="0.01" value="{{ old('hourly_price') }}" id="hourly_price" name="hourly_price"
         class="form-control" required>
       <input type="hidden" value="{{ old('salary') }}" id="salary" name="salary" required>
     </div>
     <div class="form-group">
-      <label for="amount">Amount (in {{ $setting->currency }})</label>
+      <label for="amount">Amount (in {{ session('setting')->currency }})</label>
       <input type="number" readonly value="{{ old('amount') }}" id="amount" name="amount" class="form-control"
         required>
     </div>

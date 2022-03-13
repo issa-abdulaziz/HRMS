@@ -30,7 +30,7 @@
                 href="{{ route('employee.show', $advancedPayment->employee->id) }}">{{ $advancedPayment->employee->full_name }}</a>
             </td>
             <td>{{ $advancedPayment->date }}</td>
-            <td>{{ $advancedPayment->amount }} {{ $currency }}</td>
+            <td>{{ $advancedPayment->amount }} {{ session('setting')->currency }}</td>
             <td title="{{ $advancedPayment->note }}">{{ $advancedPayment->note }}</td>
             <td><a class="btn btn-success btn-sm" href="{{ route('advanced-payment.edit', $advancedPayment->id) }}"><i
                   class="fas fa-edit"></i></a></td>
@@ -38,7 +38,7 @@
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
                 data-id="{{ $advancedPayment->id }}" data-name="{{ $advancedPayment->employee->full_name }}"
                 data-date="{{ $advancedPayment->date }}" data-amount=" {{ $advancedPayment->amount }}"
-                data-currency="{{ $currency }}">
+                data-currency="{{ session('setting')->currency }}">
                 <i class="fas fa-trash"></i>
               </button>
             </td>

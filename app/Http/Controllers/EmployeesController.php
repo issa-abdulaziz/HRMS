@@ -3,28 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DateTime;
 use App\Models\Employee;
 use App\Models\Shift;
-use App\Models\Setting;
-use App\Models\Overtime;
-use App\Models\AdvancedPayment;
-use App\Models\Attendance;
 use App\Http\Requests\EmployeeRequest;
 
 class EmployeesController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    private $setting;
-    public function __construct()
-    {
-        $this->setting = Setting::first();
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -32,8 +16,8 @@ class EmployeesController extends Controller
      */
     public function index()
     {
-        $employees = Employee::orderBy('full_name','asc')->get();
-        return view('employee.index')->with(['employees' => $employees, 'currency' => $this->setting->currency]);
+        $employees = Employee::orderBy('full_name', 'asc')->get();
+        return view('employee.index')->with(['employees' => $employees]);
     }
 
     /**
@@ -44,7 +28,7 @@ class EmployeesController extends Controller
     public function create()
     {
         $shifts = Shift::select('id', 'title')->get();
-        return view('employee.create')->with(['shifts' => $shifts, 'currency' => $this->setting->currency]);
+        return view('employee.create')->with(['shifts' => $shifts]);
     }
 
     /**
@@ -72,7 +56,7 @@ class EmployeesController extends Controller
         $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
-        return redirect('/employee')->with('success','employee Added Successfully');
+        return redirect('/employee')->with('success', 'employee Added Successfully');
     }
 
     /**
@@ -95,13 +79,12 @@ class EmployeesController extends Controller
 
         $totalLeeway = $employee->getTotalLeeway($date);
         $leewayTime = floor($totalLeeway / 60)  . ':' . $totalLeeway % 60;
-        
+
         $vacationDays = $employee->getVacationDays();
         $inTimePercentage = $employee->getInTimePercentage();
 
         return view('employee.show')->with([
             'employee' => $employee,
-            'currency' => $this->setting->currency,
             'overtimeAmount' => $overtimeAmount,
             'advancedPaymentAmount' => $advancedPaymentAmount,
             'absentDay' => $absentDay,
@@ -124,7 +107,7 @@ class EmployeesController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $shifts = Shift::select('id', 'title')->get();
-        return view('employee.edit')->with(['employee' => $employee, 'shifts' => $shifts, 'currency' => $this->setting->currency]);
+        return view('employee.edit')->with(['employee' => $employee, 'shifts' => $shifts]);
     }
 
     /**
@@ -152,7 +135,7 @@ class EmployeesController extends Controller
         $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
-        return redirect('/employee')->with('success','employee Edited Successfully');
+        return redirect('/employee')->with('success', 'employee Edited Successfully');
     }
 
     /**
@@ -165,23 +148,24 @@ class EmployeesController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
-        return redirect('/employee')->with('success','Employee Deleted Successfully');
+        return redirect('/employee')->with('success', 'Employee Deleted Successfully');
     }
-    public function getData(Request $request){
-        
+    public function getData(Request $request)
+    {
+
         $employee = Employee::findOrFail($request->employee_id);
 
         $months_arr = []; // can't be array, should be collection inorder to use the map function
         for ($t = 0; $t < 12; $t++) {
-            $months_arr[]= date("Y-m", strtotime( date( 'Y-m-01' )." -$t months"));
+            $months_arr[] = date("Y-m", strtotime(date('Y-m-01') . " -$t months"));
         }
         $months = collect(array_reverse($months_arr));
 
-        $monthsLabel = $months->map(function($month, $key) {
-            return date('M',strtotime($month));
+        $monthsLabel = $months->map(function ($month, $key) {
+            return date('M', strtotime($month));
         });
 
-        $data = $months->map(function($month, $key) use ($employee){
+        $data = $months->map(function ($month, $key) use ($employee) {
 
             $overtimeTotal = $employee->getOvertimeAmount($month);
             $absenceTotal = $employee->getAbsentDayDiscountAmount($month);

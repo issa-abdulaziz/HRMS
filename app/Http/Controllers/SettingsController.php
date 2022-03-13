@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Setting;
 use App\Http\Requests\SettingRequest;
 
@@ -15,8 +14,7 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        $setting = Setting::first();
-        return view('setting.edit')->with('setting',$setting);   
+        return view('setting.edit');
     }
 
     public function update(SettingRequest $request, $id)
@@ -32,6 +30,6 @@ class SettingsController extends Controller
         $setting->taking_vacation_allowed_after = $request->takingVacationAllowedAfter;
         $setting->currency = $request->currency;
         $setting->save();
-        return redirect('/setting')->with('success','Setting Updated Successfully');
+        return redirect('/setting')->with('success', 'Setting Updated Successfully');
     }
 }

@@ -3,33 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Models\Vacation;
 use App\Models\Employee;
-use App\Models\Setting;
 use App\Http\Requests\VacationRequest;
 
 class VacationController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    private $setting;
-    public function __construct()
-    {
-        $this->setting = Setting::first();
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   $params = $request->except('_token');
-        $vacations = Vacation::filter($params)->orderBy('date_from','desc')->get();
+    {
+        $params = $request->except('_token');
+        $vacations = Vacation::filter($params)->orderBy('date_from', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
         return view('vacation.index')->with(['vacations' => $vacations, 'date' => $date]);
     }
@@ -41,8 +29,8 @@ class VacationController extends Controller
      */
     public function create()
     {
-        $employees = Employee::where('active',1)->orderBy('full_name','asc')->get();
-        $employees = $employees->filter(function($employee) {
+        $employees = Employee::where('active', 1)->orderBy('full_name', 'asc')->get();
+        $employees = $employees->filter(function ($employee) {
             return $employee->canTakeVacation();
         });
 
@@ -61,7 +49,7 @@ class VacationController extends Controller
 
         $employee = Employee::find($request->employee_id);
         $vacationDays = $request->days;
-        
+
         $vacation = new Vacation();
         $vacation->date_from = $request->date_from;
         $vacation->date_to = Vacation::getDateTo($request->date_from, $vacationDays);
@@ -73,7 +61,7 @@ class VacationController extends Controller
         $employee->taken_vacations_days += $vacationDays;
         $employee->save();
 
-        return redirect()->route('vacation.index')->with('success','Vacation Added Successfully');
+        return redirect()->route('vacation.index')->with('success', 'Vacation Added Successfully');
     }
 
     /**
@@ -116,7 +104,7 @@ class VacationController extends Controller
 
         $vacation = Vacation::findOrFail($id);
         $employee = Employee::find($request->employee_id);
-        
+
         $oldVacationDays = $vacation->days;
         $vacationDays = $request->days;
 
@@ -129,7 +117,7 @@ class VacationController extends Controller
         $employee->taken_vacations_days += $vacationDays - $oldVacationDays;
         $employee->save();
 
-        return redirect()->route('vacation.index')->with('success','Vacation Added Successfully');
+        return redirect()->route('vacation.index')->with('success', 'Vacation Added Successfully');
     }
 
     /**
@@ -144,10 +132,11 @@ class VacationController extends Controller
         $vacation->employee->taken_vacations_days -= $vacation->days;
         $vacation->employee->save();
         $vacation->delete();
-        return redirect()->route('vacation.index')->with('success','Vacation Deleted Successfully');
+        return redirect()->route('vacation.index')->with('success', 'Vacation Deleted Successfully');
     }
 
-    public function getData(Request $request) {
+    public function getData(Request $request)
+    {
         $employee = Employee::findOrFail($request->employee_id);
         return response()->json([
             'vacationStartCountAt' => $employee->getTakingVacationStartAt(),

@@ -42,14 +42,14 @@
         class="form-control" required>
     </div>
     <div class="form-group">
-      <label for="hourly_price">Hourly Price (in {{ $setting->currency }})</label>
+      <label for="hourly_price">Hourly Price (in {{ session('setting')->currency }})</label>
       <input type="number" readonly step="0.01"
         value="{{ round($overtime->salary / 30 / $overtime->working_hour, 2) }}" id="hourly_price" name="hourly_price"
         class="form-control" required>
       <input type="hidden" value="{{ $overtime->salary }}" id="salary" name="salary" required>
     </div>
     <div class="form-group">
-      <label for="amount">Amount (in {{ $setting->currency }})</label>
+      <label for="amount">Amount (in {{ session('setting')->currency }})</label>
       <input type="number" readonly value="{{ $overtime->amount }}" id="amount" name="amount" class="form-control"
         required>
     </div>

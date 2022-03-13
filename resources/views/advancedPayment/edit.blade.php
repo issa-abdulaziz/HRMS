@@ -23,7 +23,7 @@
         min="{{ $advancedPayment->employee->hired_at }}" class="form-control" required>
     </div>
     <div class="form-group">
-      <label for="amount">Amount (in {{ $setting->currency }})</label>
+      <label for="amount">Amount (in {{ session('setting')->currency }})</label>
       <input type="number" value="{{ $advancedPayment->amount }}" id="amount" name="amount" class="form-control"
         min="1" required>
     </div>

@@ -4,7 +4,6 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 use Carbon\Carbon;
-use App\Models\Setting;
 
 class IsWeekend implements Rule
 {
@@ -27,7 +26,7 @@ class IsWeekend implements Rule
      */
     public function passes($attribute, $value)
     {
-        return Carbon::parse($value)->format('l') != Setting::first()->weekend;
+        return Carbon::parse($value)->format('l') != session('setting')->weekend;
     }
 
     /**

@@ -163,7 +163,8 @@
                 </tr>
                 <tr>
                   <td>Salary</td>
-                  <td class="text-end font-weight-medium">{{ $employee->salary }} {{ $currency }}</td>
+                  <td class="text-end font-weight-medium">{{ $employee->salary }} {{ session('setting')->currency }}
+                  </td>
                 </tr>
                 <tr>
                   <td>Work Shift</td>
@@ -238,7 +239,7 @@
                       <td>{{ $overtime->date }}</td>
                       <td>{{ floor($overtime->time / 60) }}:{{ $overtime->time % 60 }}</td>
                       <td>x{{ $overtime->rate }}</td>
-                      <td>{{ $overtime->amount }} {{ $currency }}</td>
+                      <td>{{ $overtime->amount }} {{ session('setting')->currency }}</td>
                     </tr>
                   @endforeach
                 </tbody>
@@ -297,7 +298,7 @@
                           href="/advanced-payment/{{ $advancedPayment->id }}">{{ $advancedPayment->employee->full_name }}</a>
                       </td>
                       <td>{{ $advancedPayment->date }}</td>
-                      <td>{{ $advancedPayment->amount }} {{ $currency }}</td>
+                      <td>{{ $advancedPayment->amount }} {{ session('setting')->currency }}</td>
                     </tr>
                   @endforeach
                 </tbody>

@@ -25,12 +25,12 @@
           <tr>
             <td>{{ $loop->index + 1 }}</td>
             <td><a href="{{ route('employee.show', $entry['employee_id']) }}">{{ $entry['employee_name'] }}</a></td>
-            <td>{{ $entry['salary'] }} {{ $currency }}</td>
-            <td>{{ $entry['overtimeAmount'] }} {{ $currency }}</td>
-            <td>{{ $entry['leewayDiscount'] }} {{ $currency }}</td>
-            <td>{{ $entry['advancedPaymentAmount'] }} {{ $currency }}</td>
-            <td>{{ $entry['absentDayDiscountAmount'] }} {{ $currency }}</td>
-            <td>{{ $entry['netSalary'] }} {{ $currency }}</td>
+            <td>{{ $entry['salary'] }} {{ session('setting')->currency }}</td>
+            <td>{{ $entry['overtimeAmount'] }} {{ session('setting')->currency }}</td>
+            <td>{{ $entry['leewayDiscount'] }} {{ session('setting')->currency }}</td>
+            <td>{{ $entry['advancedPaymentAmount'] }} {{ session('setting')->currency }}</td>
+            <td>{{ $entry['absentDayDiscountAmount'] }} {{ session('setting')->currency }}</td>
+            <td>{{ $entry['netSalary'] }} {{ session('setting')->currency }}</td>
           </tr>
         @endforeach
       @endif

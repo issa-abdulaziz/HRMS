@@ -36,8 +36,8 @@
             <td>{{ $overtime->date }}</td>
             <td>{{ floor($overtime->time / 60) }}:{{ $overtime->time % 60 }}</td>
             <td>x{{ $overtime->rate }}</td>
-            <td>{{ $overtime->amount }} {{ $currency }}</td>
-            <td>{{ $overtime->salary }} {{ $currency }}</td>
+            <td>{{ $overtime->amount }} {{ session('setting')->currency }}</td>
+            <td>{{ $overtime->salary }} {{ session('setting')->currency }}</td>
             <td>{{ $overtime->working_hour }}</td>
             <td>{{ $overtime->note }}</td>
             <td><a class="btn btn-success btn-sm" href="{{ route('overtime.edit', $overtime->id) }}"><i
@@ -46,7 +46,7 @@
               <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeletionModal"
                 data-id="{{ $overtime->id }}" data-name="{{ $overtime->employee->full_name }}"
                 data-date="{{ $overtime->date }}" data-amount=" {{ $overtime->amount }}"
-                data-currency="{{ $currency }}">
+                data-currency="{{ session('setting')->currency }}">
                 <i class="fas fa-trash"></i>
               </button>
             </td>

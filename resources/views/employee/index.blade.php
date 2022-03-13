@@ -33,7 +33,7 @@
             <td>{{ $employee->vacation_start_count_at }}</td>
             <td>{{ $employee->city }}</td>
             <td>{{ $employee->hired_at }}</td>
-            <td>{{ $employee->salary }} {{ $currency }}</td>
+            <td>{{ $employee->salary }} {{ session('setting')->currency }}</td>
             <td>
               @if ($employee->active)
                 <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
