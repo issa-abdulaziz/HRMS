@@ -20,11 +20,11 @@ class VacationConflict implements Rule
      *
      * @return void
      */
-    public function __construct($employee_id, $vacationDays, $vacation_id)
+    public function __construct($employee_id, $vacationDays, $vacation)
     {
         $this->employee_id = $employee_id;
         $this->vacationDays = $vacationDays;
-        $this->vacation_id = $vacation_id;
+        $this->vacation_id = $vacation?->id;
     }
 
     /**

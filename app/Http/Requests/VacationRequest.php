@@ -37,8 +37,8 @@ class VacationRequest extends FormRequest
             'days' => ['required', 'integer', 'min:1', new VacationDaysRule($this->employee_id, $this->vacation)],
             'date_from' => [
                 'required',
-                'date', 
-                new AfterVacationIsAllowed($this->employee_id), 
+                'date',
+                new AfterVacationIsAllowed($this->employee_id),
                 new VacationConflict($this->employee_id, $this->days ,$this->vacation),
                 new IsWeekend()
             ],

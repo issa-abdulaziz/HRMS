@@ -17,10 +17,10 @@ class AdvancedPaymentConflict implements Rule
      *
      * @return void
      */
-    public function __construct($employee_id, $advanced_payment_id)
+    public function __construct($employee_id, $advanced_payment)
     {
         $this->employee_id = $employee_id;
-        $this->advanced_payment_id = $advanced_payment_id;
+        $this->advanced_payment_id = $advanced_payment?->id;
     }
 
     /**

@@ -13,9 +13,9 @@ class EmployeeNotChanged implements Rule
      *
      * @return void
      */
-    public function __construct($vacation_id)
+    public function __construct($vacation)
     {
-        $this->vacation_id = $vacation_id;
+        $this->vacation_id = $vacation?->id;
     }
 
     /**

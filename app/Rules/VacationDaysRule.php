@@ -16,10 +16,10 @@ class VacationDaysRule implements Rule
      *
      * @return void
      */
-    public function __construct($employee_id, $vacation_id)
+    public function __construct($employee_id, $vacation)
     {
         $this->employee_id = $employee_id;
-        $this->vacation_id = $vacation_id;
+        $this->vacation_id = $vacation?->id;
     }
 
     /**

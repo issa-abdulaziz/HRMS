@@ -16,10 +16,10 @@ class OvertimeConflict implements Rule
      *
      * @return void
      */
-    public function __construct($employee_id, $overtime_id)
+    public function __construct($employee_id, $overtime)
     {
         $this->employee_id = $employee_id;
-        $this->overtime_id = $overtime_id;
+        $this->overtime_id = $overtime?->id;
     }
 
     /**
