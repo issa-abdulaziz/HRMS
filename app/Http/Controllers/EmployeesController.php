@@ -17,7 +17,7 @@ class EmployeesController extends Controller
     public function index()
     {
         $employees = Employee::orderBy('full_name', 'asc')->get();
-        return view('employee.index')->with(['employees' => $employees]);
+        return view('employee.index', compact('employees'));
     }
 
     /**
@@ -28,7 +28,7 @@ class EmployeesController extends Controller
     public function create()
     {
         $shifts = Shift::select('id', 'title')->get();
-        return view('employee.create')->with(['shifts' => $shifts]);
+        return view('employee.create', compact('shifts'));
     }
 
     /**
@@ -39,8 +39,6 @@ class EmployeesController extends Controller
      */
     public function store(EmployeeRequest $request)
     {
-        $request->validated();
-
         $employee = new Employee();
         $employee->full_name = $request->full_name;
         $employee->date_of_birth = $request->date_of_birth;
@@ -56,7 +54,7 @@ class EmployeesController extends Controller
         $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
-        return redirect('/employee')->with('success', 'employee Added Successfully');
+        return redirect()->route('employee.index')->with('success', 'employee Added Successfully');
     }
 
     /**
@@ -65,10 +63,8 @@ class EmployeesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Employee $employee)
     {
-        $employee = Employee::findOrFail($id);
-
         $date = date('Y-m');
 
         $overtimeAmount = $employee->getOvertimeAmount($date);
@@ -80,21 +76,12 @@ class EmployeesController extends Controller
         $totalLeeway = $employee->getTotalLeeway($date);
         $leewayTime = floor($totalLeeway / 60)  . ':' . $totalLeeway % 60;
 
+        $total = $overtimeAmount - $advancedPaymentAmount - $absentDayDiscountAmount - $leewayDiscount;
+
         $vacationDays = $employee->getVacationDays();
         $inTimePercentage = $employee->getInTimePercentage();
 
-        return view('employee.show')->with([
-            'employee' => $employee,
-            'overtimeAmount' => $overtimeAmount,
-            'advancedPaymentAmount' => $advancedPaymentAmount,
-            'absentDay' => $absentDay,
-            'absentDayDiscountAmount' => $absentDayDiscountAmount,
-            'leewayTime' => $leewayTime,
-            'leewayDiscount' => $leewayDiscount,
-            'total' => $overtimeAmount - $advancedPaymentAmount - $absentDayDiscountAmount - $leewayDiscount,
-            'vacationDays' => $vacationDays,
-            'inTimePercentage' => $inTimePercentage,
-        ]);
+        return view('employee.show', compact('employee', 'overtimeAmount', 'advancedPaymentAmount', 'absentDay', 'absentDayDiscountAmount', 'leewayTime', 'leewayDiscount', 'total', 'vacationDays', 'inTimePercentage'));
     }
 
     /**
@@ -103,11 +90,10 @@ class EmployeesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Employee $employee)
     {
-        $employee = Employee::findOrFail($id);
         $shifts = Shift::select('id', 'title')->get();
-        return view('employee.edit')->with(['employee' => $employee, 'shifts' => $shifts]);
+        return view('employee.edit', compact('employee', 'shifts'));
     }
 
     /**
@@ -117,11 +103,8 @@ class EmployeesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(EmployeeRequest $request, $id)
+    public function update(EmployeeRequest $request, Employee $employee)
     {
-        $request->validated();
-
-        $employee = Employee::findOrFail($id);
         $employee->full_name = $request->full_name;
         $employee->date_of_birth = $request->date_of_birth;
         $employee->city = $request->city;
@@ -135,7 +118,7 @@ class EmployeesController extends Controller
         $shift = Shift::find($request->shift_id);
         $shift->employees()->save($employee);
 
-        return redirect('/employee')->with('success', 'employee Edited Successfully');
+        return redirect()->route('employee.index')->with('success', 'employee Edited Successfully');
     }
 
     /**
@@ -144,11 +127,10 @@ class EmployeesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Employee $employee)
     {
-        $employee = Employee::findOrFail($id);
         $employee->delete();
-        return redirect('/employee')->with('success', 'Employee Deleted Successfully');
+        return redirect()->route('employee.index')->with('success', 'Employee Deleted Successfully');
     }
     public function getData(Request $request)
     {

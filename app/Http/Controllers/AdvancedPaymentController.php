@@ -52,7 +52,7 @@ class AdvancedPaymentController extends Controller
         $employee = Employee::find($request->employee_id);
         $employee->advancedPayments()->save($advancedPayment);
 
-        return redirect('/advanced-payment')->with('success', 'Advanced Payment Added Successfully');
+        return redirect()->route('advanced-payment.index')->with('success', 'Advanced Payment Added Successfully');
     }
 
     /**
@@ -61,10 +61,9 @@ class AdvancedPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(AdvancedPayment $advancedPayment)
     {
-        $advancedPayment = AdvancedPayment::findOrFail($id);
-        return view('advancedPayment.show')->with(['advancedPayment' => $advancedPayment]);
+        return view('advancedPayment.show', compact('advancedPayment'));
     }
 
     /**
@@ -73,11 +72,10 @@ class AdvancedPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(AdvancedPayment $advancedPayment)
     {
-        $advancedPayment = AdvancedPayment::findOrFail($id);
         $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
-        return view('advancedPayment.edit')->with(['advancedPayment' => $advancedPayment, 'employees' => $employees]);
+        return view('advancedPayment.edit', compact('advancedPayment', 'employees'));
     }
 
     /**
@@ -87,11 +85,8 @@ class AdvancedPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(AdvancedPaymentRequest $request, $id)
+    public function update(AdvancedPaymentRequest $request, AdvancedPayment $advancedPayment)
     {
-        $request->validated();
-
-        $advancedPayment = AdvancedPayment::findOrFail($id);
         $advancedPayment->date = $request->date;
         $advancedPayment->amount = $request->amount;
         $advancedPayment->employee_id = $request->employee_id;
@@ -100,7 +95,7 @@ class AdvancedPaymentController extends Controller
         $employee = Employee::find($request->employee_id);
         $employee->advancedPayments()->save($advancedPayment);
 
-        return redirect('/advanced-payment')->with('success', 'Advanced Payment Edited Successfully');
+        return redirect()->route('advanced-payment.index')->with('success', 'Advanced Payment Edited Successfully');
     }
 
     /**
@@ -109,11 +104,10 @@ class AdvancedPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(AdvancedPayment $advancedPayment)
     {
-        $advancedPayment = AdvancedPayment::findorFail($id);
         $advancedPayment->delete();
-        return redirect('/advanced-payment')->with('success', 'Advanced Pyament Deleted Successfully');
+        return redirect()->route('advanced-payment.index')->with('success', 'Advanced Pyament Deleted Successfully');
     }
 
     public function getData(Request $request)

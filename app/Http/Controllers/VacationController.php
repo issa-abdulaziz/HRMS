@@ -19,7 +19,7 @@ class VacationController extends Controller
         $params = $request->except('_token');
         $vacations = Vacation::filter($params)->orderBy('date_from', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
-        return view('vacation.index')->with(['vacations' => $vacations, 'date' => $date]);
+        return view('vacation.index', compact('vacations', 'date'));
     }
 
     /**
@@ -34,7 +34,7 @@ class VacationController extends Controller
             return $employee->canTakeVacation();
         });
 
-        return view('vacation.create')->with('employees', $employees);
+        return view('vacation.create', compact('employees'));
     }
 
     /**
@@ -45,8 +45,6 @@ class VacationController extends Controller
      */
     public function store(VacationRequest $request)
     {
-        $request->validated();
-
         $employee = Employee::find($request->employee_id);
         $vacationDays = $request->days;
 
@@ -81,14 +79,13 @@ class VacationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Vacation $vacation)
     {
-        $vacation = Vacation::findOrFail($id);
         $vacationDays = $vacation->employee->getVacationDays();
         $thisVacationDays = $vacation->days;
         $totalVacationDays = $vacationDays + $thisVacationDays;
 
-        return view('vacation.edit')->with(['vacation' => $vacation, 'totalVacationDays' => $totalVacationDays]);
+        return view('vacation.edit', compact('vacation', 'totalVacationDays'));
     }
 
     /**
@@ -98,11 +95,8 @@ class VacationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(VacationRequest $request, $id)
+    public function update(VacationRequest $request, Vacation $vacation)
     {
-        $request->validated();
-
-        $vacation = Vacation::findOrFail($id);
         $employee = Employee::find($request->employee_id);
 
         $oldVacationDays = $vacation->days;
@@ -117,7 +111,7 @@ class VacationController extends Controller
         $employee->taken_vacations_days += $vacationDays - $oldVacationDays;
         $employee->save();
 
-        return redirect()->route('vacation.index')->with('success', 'Vacation Added Successfully');
+        return redirect()->route('vacation.index')->with('success', 'Vacation edited Successfully');
     }
 
     /**
@@ -126,9 +120,8 @@ class VacationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Vacation $vacation)
     {
-        $vacation = Vacation::findOrFail($id);
         $vacation->employee->taken_vacations_days -= $vacation->days;
         $vacation->employee->save();
         $vacation->delete();

@@ -17,11 +17,8 @@ class SettingsController extends Controller
         return view('setting.edit');
     }
 
-    public function update(SettingRequest $request, $id)
+    public function update(SettingRequest $request, Setting $setting)
     {
-        $request->validated();
-
-        $setting = Setting::findOrFail($id);
         $setting->weekend = $request->weekend;
         $setting->normal_overtime_rate = $request->normalOvertimeRate;
         $setting->weekend_overtime_rate = $request->weekendOvertimeRate;
@@ -30,6 +27,6 @@ class SettingsController extends Controller
         $setting->taking_vacation_allowed_after = $request->takingVacationAllowedAfter;
         $setting->currency = $request->currency;
         $setting->save();
-        return redirect('/setting')->with('success', 'Setting Updated Successfully');
+        return redirect()->route('setting.index')->with('success', 'Setting Updated Successfully');
     }
 }

@@ -17,7 +17,7 @@ class ShiftsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +26,7 @@ class ShiftsController extends Controller
     public function index()
     {
         $shifts = Shift::all();
-        return view('shift.index')->with('shifts',$shifts);
+        return view('shift.index', compact('shifts'));
     }
 
     /**
@@ -47,15 +47,13 @@ class ShiftsController extends Controller
      */
     public function store(ShiftRequest $request)
     {
-        $request->validated();
-
         $shift = new Shift();
         $shift->title = $request->title;
         $shift->starting_time = $request->starting_time;
         $shift->leaving_time = $request->leaving_time;
         $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
         $shift->save();
-        return redirect('/shift')->with('success','Shift Added Successfully');
+        return redirect()->route('shift.index')->with('success','Shift Added Successfully');
     }
 
     /**
@@ -64,9 +62,9 @@ class ShiftsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Shift $shift)
     {
-        return redirect('/shift');
+        return redirect()->route('shift.index');
     }
 
     /**
@@ -75,10 +73,9 @@ class ShiftsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Shift $shift)
     {
-        $shift = Shift::findOrFail($id);
-        return view('shift.edit')->with('shift',$shift);
+        return view('shift.edit', compact('shift'));
     }
 
     /**
@@ -88,17 +85,14 @@ class ShiftsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ShiftRequest $request, $id)
+    public function update(ShiftRequest $request, Shift $shift)
     {
-        $request->validated();
-        
-        $shift = Shift::findOrFail($id);
         $shift->title = $request->title;
         $shift->starting_time = $request->starting_time;
         $shift->leaving_time = $request->leaving_time;
         $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
         $shift->save();
-        return redirect('/shift')->with('success','Shift Updated Successfully');
+        return redirect()->route('shift.index')->with('success','Shift Updated Successfully');
     }
 
     /**
@@ -107,10 +101,9 @@ class ShiftsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Shift $shift)
     {
-        $shift = Shift::findOrFail($id);
         $shift->delete();
-        return redirect('/shift')->with('success','Shift deleted Successfully');
+        return redirect()->route('shift.index')->with('success','Shift deleted Successfully');
     }
 }

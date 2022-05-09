@@ -22,12 +22,7 @@ class DashboardController extends Controller
         $absenceTotal = Attendance::getTotalAbsenceAmount($currentMonth);
         $overall = $overtimeTotal - $leewayTotal - $absenceTotal;
 
-        return view('dashboard')->with([
-            'overtimeTotal' => $overtimeTotal,
-            'absenceTotal' => $absenceTotal,
-            'leewayTotal' => $leewayTotal,
-            'overall' => $overall,
-        ]);
+        return view('dashboard', compact('overtimeTotal', 'absenceTotal', 'leewayTotal', 'overall'));
     }
 
     public function getData(Request $request)

@@ -22,7 +22,7 @@ class AttendanceController extends Controller
         $employees = Employee::where('active', 1)
             ->where('shift_id', $shifts[0]->id)
             ->where('hired_at', '<=', date('Y-m-d'))->get();
-        return view('attendance.index')->with(['shifts' => $shifts, 'employees' => $employees]);
+        return view('attendance.index', compact('shifts', 'employees'));
     }
 
     public function check(Request $request)

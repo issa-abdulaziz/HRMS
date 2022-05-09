@@ -40,6 +40,6 @@ class SalaryController extends Controller
                 'netSalary' => $netSalary,
             ];
         });
-        return view('salary.index')->with(['data' => $data, 'date' => $date]);
+        return view('salary.index', compact('data', 'date'));
     }
 }

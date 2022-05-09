@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(SettingsController::class)->prefix('setting')->group(function() {
       Route::get('/', 'index')->name('setting.index');
-      Route::PUT('/{id}', 'update')->name('setting.update');
+      Route::PUT('/{setting}', 'update')->name('setting.update');
     });
 
     Route::controller(OvertimesController::class)->prefix('overtime')->group(function() {
