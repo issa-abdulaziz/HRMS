@@ -19,8 +19,7 @@ class CreateVacationsTable extends Migration
             $table->date('date_to');
             $table->integer('days');
             $table->string('note');
-            $table->unsignedInteger('employee_id');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
         });
     }
 

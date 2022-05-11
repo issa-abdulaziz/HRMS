@@ -14,7 +14,7 @@ class CreateOvertimesTable extends Migration
     public function up()
     {
         Schema::create('overtimes', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->date('date');
             $table->integer('time'); // in minutes
             $table->double('rate', 5, 3);
@@ -22,8 +22,7 @@ class CreateOvertimesTable extends Migration
             $table->double('working_hour', 5, 3); // this is needed for calculating the hourrly price
             $table->integer('amount');
             $table->string('note');
-            $table->unsignedInteger('employee_id');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
         });
     }
 

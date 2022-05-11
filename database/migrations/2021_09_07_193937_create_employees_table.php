@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class CreateEmployeesTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateEmployeesTable extends Migration
     public function up()
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('full_name');
             $table->date('date_of_birth');
             $table->string('city');
@@ -26,8 +26,8 @@ class CreateEmployeesTable extends Migration
             $table->boolean('active');
             $table->date('vacation_start_count_at')->nullable();
             $table->integer('taken_vacations_days');
-            $table->unsignedInteger('shift_id');
-            $table->foreign('shift_id')->references('id')->on('shifts')->onDelete('cascade');
+            $table->foreignId('shift_id')->constrained()->nullOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
         });
         // Inserting default data
@@ -44,6 +44,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 1,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/5/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -59,6 +60,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 2,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/9/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -74,6 +76,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 2,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/6/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -89,6 +92,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 1,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/6/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -103,6 +107,7 @@ class CreateEmployeesTable extends Migration
                 'active' => true,
                 'shift_id' => 1,
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -118,6 +123,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 1,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/9/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -133,6 +139,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 1,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/7/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -148,6 +155,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 2,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/6/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -163,6 +171,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 1,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/6/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
         DB::table('employees')->insert(
@@ -178,6 +187,7 @@ class CreateEmployeesTable extends Migration
                 'shift_id' => 2,
                 'vacation_start_count_at' => date("y/m/d", strtotime('2021/6/1')),
                 'taken_vacations_days' => '0',
+                'user_id' => 1,
             )
         );
     }

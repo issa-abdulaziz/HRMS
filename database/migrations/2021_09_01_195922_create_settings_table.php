@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CreateSettingsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateSettingsTable extends Migration
     public function up()
     {
         Schema::create('settings', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('weekend');
             $table->double('normal_overtime_rate', 5, 3);
             $table->double('weekend_overtime_rate', 5, 3);
@@ -23,8 +23,9 @@ class CreateSettingsTable extends Migration
             $table->double('vacation_rate', 5, 3);
             $table->integer('taking_vacation_allowed_after');
             $table->string('currency');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });
-        
+
         // Inserting default data
         DB::table('settings')->insert(
             array(
@@ -35,6 +36,7 @@ class CreateSettingsTable extends Migration
                 'leeway_discount_rate' => 1.5,
                 'vacation_rate' => 1.25,
                 'taking_vacation_allowed_after' => 3,
+                'user_id' => 1,
             )
         );
     }

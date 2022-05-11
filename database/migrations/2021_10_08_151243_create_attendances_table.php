@@ -14,15 +14,14 @@ class CreateAttendancesTable extends Migration
     public function up()
     {
         Schema::create('attendances', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->date('date');
             $table->boolean('present');
             $table->time('time_in')->nullable();
             $table->time('time_out')->nullable();
             $table->integer('total_leeway')->nullable();
             $table->longText('note')->nullable();
-            $table->unsignedInteger('employee_id');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
         });
     }
 
