@@ -2,13 +2,17 @@
 
 namespace App\models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use DateTime;
 
 class Shift extends Model
-{    
+{
     public $timestamps = false;
-    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function employees() {
         return $this->hasMany(Employee::class);
     }

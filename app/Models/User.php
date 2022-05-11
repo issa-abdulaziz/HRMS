@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\models\Employee;
+use App\models\Setting;
+use App\models\Shift;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -41,4 +44,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+    public function setting()
+    {
+        return $this->hasOne(Setting::class);
+    }
+    public function shifts()
+    {
+        return $this->hasMany(Shift::class);
+    }
 }
