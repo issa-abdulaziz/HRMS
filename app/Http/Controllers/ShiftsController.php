@@ -8,15 +8,6 @@ use App\Http\Requests\ShiftRequest;
 
 class ShiftsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     /**
      * Display a listing of the resource.
@@ -25,7 +16,7 @@ class ShiftsController extends Controller
      */
     public function index()
     {
-        $shifts = Shift::all();
+        $shifts = auth()->user()->shifts;
         return view('shift.index', compact('shifts'));
     }
 
@@ -47,12 +38,13 @@ class ShiftsController extends Controller
      */
     public function store(ShiftRequest $request)
     {
-        $shift = new Shift();
-        $shift->title = $request->title;
-        $shift->starting_time = $request->starting_time;
-        $shift->leaving_time = $request->leaving_time;
-        $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
-        $shift->save();
+        Shift::create([
+            'title' => $request->title,
+            'starting_time' => $request->starting_time,
+            'leaving_time' => $request->leaving_time,
+            'across_midnight' => $request->has('across_midnight') ? 1 : 0,
+            'user_id' => auth()->id(),
+        ]);
         return redirect()->route('shift.index')->with('success','Shift Added Successfully');
     }
 
@@ -75,6 +67,7 @@ class ShiftsController extends Controller
      */
     public function edit(Shift $shift)
     {
+        abort_if($shift->user_id !== auth()->id(), 403);
         return view('shift.edit', compact('shift'));
     }
 
@@ -87,11 +80,13 @@ class ShiftsController extends Controller
      */
     public function update(ShiftRequest $request, Shift $shift)
     {
-        $shift->title = $request->title;
-        $shift->starting_time = $request->starting_time;
-        $shift->leaving_time = $request->leaving_time;
-        $shift->across_midnight = $request->has('across_midnight') ? 1 : 0;
-        $shift->save();
+        abort_if($shift->user_id !== auth()->id(), 403);
+        $shift->update([
+            'title' => $request->title,
+            'starting_time' => $request->starting_time,
+            'leaving_time' => $request->leaving_time,
+            'across_midnight' => $request->has('across_midnight') ? 1 : 0,
+        ]);
         return redirect()->route('shift.index')->with('success','Shift Updated Successfully');
     }
 
@@ -103,6 +98,7 @@ class ShiftsController extends Controller
      */
     public function destroy(Shift $shift)
     {
+        abort_if($shift->user_id !== auth()->id(), 403);
         $shift->delete();
         return redirect()->route('shift.index')->with('success','Shift deleted Successfully');
     }
