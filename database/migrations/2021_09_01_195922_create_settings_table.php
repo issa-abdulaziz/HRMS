@@ -25,20 +25,6 @@ class CreateSettingsTable extends Migration
             $table->string('currency');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });
-
-        // Inserting default data
-        DB::table('settings')->insert(
-            array(
-                'currency' => 'USD',
-                'weekend' => 'Friday',
-                'normal_overtime_rate' => 1.5,
-                'weekend_overtime_rate' => 2,
-                'leeway_discount_rate' => 1.5,
-                'vacation_rate' => 1.25,
-                'taking_vacation_allowed_after' => 3,
-                'user_id' => 1,
-            )
-        );
     }
 
     /**
