@@ -368,12 +368,9 @@
         }
       });
       $.ajax({
-        type: "POST",
-        data: {
-          employee_id: $('#employee_id').val()
-        },
+        type: "GET",
         dataType: 'json',
-        url: "/employee/getData",
+        url: "{{ route('employee.getData', ['%id%']) }}".replace('%id%', $('#employee_id').val()),
         success: function(response) {
           monthsLabel = response.monthsLabel;
           response.data.forEach(element => {

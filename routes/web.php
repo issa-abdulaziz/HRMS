@@ -40,10 +40,10 @@ Route::middleware(['auth'])->group(function () {
       });
     });
 
-    Route::post('/employee/getData', [EmployeesController::class,'getData']);
-    Route::post('/advanced-payment/getData', [AdvancedPaymentController::class,'getData']);
-    Route::post('/vacation/getData', [VacationController::class,'getData']);
-    Route::get('/salary', [SalaryController::class,'index'])->name('salary.index');
+    Route::get('employee/{employee}/getData', [EmployeesController::class,'getData'])->name('employee.getData');
+    Route::post('advanced-payment/getData', [AdvancedPaymentController::class,'getData']);
+    Route::post('vacation/getData', [VacationController::class,'getData']);
+    Route::get('salary', [SalaryController::class,'index'])->name('salary.index');
 
     route::resources([
         'employee' => EmployeesController::class,

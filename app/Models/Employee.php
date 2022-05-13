@@ -8,6 +8,7 @@ use DateTime;
 class Employee extends Model
 {
     public $timestamps = false;
+    protected $guarded = [];
 
     public function user()
     {
