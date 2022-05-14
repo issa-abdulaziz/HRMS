@@ -28,7 +28,7 @@ class AdvancedPaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => 'required|exists:employees,id,user_id,' . auth()->id(),
             'date' => [
                 'required',
                 'date',

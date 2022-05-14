@@ -42,11 +42,8 @@
         }
       });
       $.ajax({
-        type: "POST",
-        url: "/advanced-payment/getData",
-        data: {
-          employee_id: $('#employee_id').val()
-        },
+        type: "get",
+        url: "{{ route('advanced-payment.getData', ['%id%']) }}".replace('%id%', $('#employee_id').val()),
         dataType: 'json',
         success: function(response) {
           $('#date').attr('min', response.hired_at);

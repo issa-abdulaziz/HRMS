@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\models\AdvancedPayment;
 use App\models\Employee;
 use App\models\Setting;
 use App\models\Shift;
@@ -56,5 +57,9 @@ class User extends Authenticatable
     public function shifts()
     {
         return $this->hasMany(Shift::class);
+    }
+    public function advancedPayments()
+    {
+        return $this->hasManyThrough(AdvancedPayment::class, Employee::class);
     }
 }

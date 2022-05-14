@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('employee/{employee}/getData', [EmployeesController::class,'getData'])->name('employee.getData');
-    Route::post('advanced-payment/getData', [AdvancedPaymentController::class,'getData']);
+    Route::get('advanced-payment/{employee}/getData', [AdvancedPaymentController::class, 'getData'])->name('advanced-payment.getData');
     Route::post('vacation/getData', [VacationController::class,'getData']);
     Route::get('salary', [SalaryController::class,'index'])->name('salary.index');
 
