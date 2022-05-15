@@ -60,6 +60,18 @@
     <button class="btn btn-primary" name="submit" id="submit" type="submit">Submit</button>
   </form>
 @endsection
+
+@push('script')
+    <script>
+      let config = {
+          routes : {
+              hourlyPrice : "{{ route('overtime.getHourlyPrice', ['%employee%']) }}",
+              rate : "{{ route('overtime.getRate', ['%date%']) }}",
+          }
+      }
+  </script>
+@endpush
+
 @push('script')
   <script>
     let time = $('#time').val();

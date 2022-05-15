@@ -16,8 +16,9 @@ class OvertimesController extends Controller
      */
     public function index(Request $request)
     {
+        dump(Overtime::getTotalOvertimeAmount(date('Y-m')));
         $params = $request->except('_token');
-        $overtimes = Overtime::filter($params)->orderBy('date', 'desc')->get();
+        $overtimes = auth()->user()->overtimes()->filter($params)->with('employee:id,full_name')->orderBy('date', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
         return view('overtime.index')->with(['overtimes' => $overtimes, 'date' => $date]);
     }
@@ -29,7 +30,7 @@ class OvertimesController extends Controller
      */
     public function create()
     {
-        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get(['id', 'full_name']);
         return view('overtime.create', compact('employees'));
     }
 
@@ -41,20 +42,16 @@ class OvertimesController extends Controller
      */
     public function store(OvertimeRequest $request)
     {
-
-        $overtime = new Overtime();
-        $overtime->date = $request->date;
-        $overtime->time = $request->time;
-        $overtime->rate = $request->rate;
-        $overtime->salary = $request->salary;
-        $overtime->working_hour = $request->working_hour;
-        $overtime->amount = $request->amount;
-        $overtime->employee_id = $request->employee_id;
-        $overtime->note = $request->note ? $request->note : 'N/A';
-
-        $employee = Employee::find($request->employee_id);
-        $employee->overtimes()->save($overtime);
-
+        Overtime::create([
+            'date' => $request->date,
+            'time' => $request->time,
+            'rate' => $request->rate,
+            'salary' => $request->salary,
+            'working_hour' => $request->working_hour,
+            'amount' => $request->amount,
+            'employee_id' => $request->employee_id,
+            'note' => $request->note ? $request->note : 'N/A',
+        ]);
         return redirect()->route('overtime.index')->with('success', 'Overtime Added Successfully');
     }
 
@@ -66,6 +63,7 @@ class OvertimesController extends Controller
      */
     public function show(Overtime $overtime)
     {
+        abort_if($overtime->employee->user_id !== auth()->id(), 403);
         return view('overtime.show', compact('overtime'));
     }
 
@@ -77,7 +75,8 @@ class OvertimesController extends Controller
      */
     public function edit(Overtime $overtime)
     {
-        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        abort_if($overtime->employee->user_id !== auth()->id(), 403);
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get(['id', 'full_name']);
         return view('overtime.edit', compact('overtime', 'employees'))->with(['overtime' => $overtime, 'employees' => $employees]);
     }
 
@@ -90,18 +89,18 @@ class OvertimesController extends Controller
      */
     public function update(OvertimeRequest $request, Overtime $overtime)
     {
-        $overtime->date = $request->date;
-        $overtime->time = $request->time;
-        $overtime->rate = $request->rate;
-        $overtime->salary = $request->salary;
-        $overtime->working_hour = $request->working_hour;
-        $overtime->amount = $request->amount;
-        $overtime->employee_id = $request->employee_id;
-        $overtime->note = $request->note ? $request->note : 'N/A';
+        abort_if($overtime->employee->user_id !== auth()->id(), 403);
 
-        $employee = Employee::find($request->employee_id);
-        $employee->overtimes()->save($overtime);
-
+        $overtime->update([
+            'date' => $request->date,
+            'time' => $request->time,
+            'rate' => $request->rate,
+            'salary' => $request->salary,
+            'working_hour' => $request->working_hour,
+            'amount' => $request->amount,
+            'employee_id' => $request->employee_id,
+            'note' => $request->note ? $request->note : 'N/A',
+        ]);
         return redirect()->route('overtime.index')->with('success', 'Overtime Edited Successfully');
     }
 
@@ -113,13 +112,15 @@ class OvertimesController extends Controller
      */
     public function destroy(Overtime $overtime)
     {
+        abort_if($overtime->employee->user_id !== auth()->id(), 403);
         $overtime->delete();
         return redirect()->route('overtime.index')->with('success', 'Overtime Deleted Successfully');
     }
 
-    public function getHourlyPrice(Request $request)
+    public function getHourlyPrice(Employee $employee)
     {
-        $employee = Employee::findOrFail($request->employee_id);
+        if ($employee->user_id !== auth()->id())
+            return response()->json(['message' => 'forbiden'], 403);
 
         return response()->json([
             'hourly_price' => $employee->getHourlyPrice(),
@@ -129,10 +130,10 @@ class OvertimesController extends Controller
         ]);
     }
 
-    public function getRate(Request $request)
+    public function getRate($date)
     {
         return response()->json([
-            'rate' => session('setting')->getRate($request->date),
+            'rate' => session('setting')->getRate($date),
         ]);
     }
 }

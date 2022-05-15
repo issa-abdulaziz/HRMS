@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\models\AdvancedPayment;
 use App\models\Employee;
+use App\models\Overtime;
 use App\models\Setting;
 use App\models\Shift;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -61,5 +62,9 @@ class User extends Authenticatable
     public function advancedPayments()
     {
         return $this->hasManyThrough(AdvancedPayment::class, Employee::class);
+    }
+    public function overtimes()
+    {
+        return $this->hasManyThrough(Overtime::class, Employee::class);
     }
 }

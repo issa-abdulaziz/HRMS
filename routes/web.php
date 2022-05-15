@@ -26,9 +26,13 @@ Route::middleware(['auth'])->group(function () {
       Route::PUT('/{setting}', 'update')->name('setting.update');
     });
 
+    // Route::group(['controller' => OvertimesController::class, 'prefix' => 'overtime', 'as' => 'overtime.'], function() {
+    //     Route::get('{employee}/getHourlyPrice', 'getHourlyPrice')->name('getHourlyPrice');
+    //     Route::get('{date}/getRate', 'getRate')->name('getRate');
+    // });
     Route::controller(OvertimesController::class)->prefix('overtime')->group(function() {
-      Route::post('/getHourlyPrice', 'getHourlyPrice');
-      Route::post('/getRate', 'getRate');
+      Route::get('{employee}/getHourlyPrice', 'getHourlyPrice')->name('overtime.getHourlyPrice');
+      Route::get('{date}/getRate', 'getRate')->name('overtime.getRate');
     });
 
     Route::controller(AttendanceController::class)->group(function() {
