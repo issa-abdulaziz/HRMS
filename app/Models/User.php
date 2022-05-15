@@ -7,6 +7,7 @@ use App\models\Employee;
 use App\models\Overtime;
 use App\models\Setting;
 use App\models\Shift;
+use App\models\Vacation;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -66,5 +67,9 @@ class User extends Authenticatable
     public function overtimes()
     {
         return $this->hasManyThrough(Overtime::class, Employee::class);
+    }
+    public function vacations()
+    {
+        return $this->hasManyThrough(Vacation::class, Employee::class);
     }
 }

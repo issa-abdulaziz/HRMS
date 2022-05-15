@@ -26,13 +26,9 @@ Route::middleware(['auth'])->group(function () {
       Route::PUT('/{setting}', 'update')->name('setting.update');
     });
 
-    // Route::group(['controller' => OvertimesController::class, 'prefix' => 'overtime', 'as' => 'overtime.'], function() {
-    //     Route::get('{employee}/getHourlyPrice', 'getHourlyPrice')->name('getHourlyPrice');
-    //     Route::get('{date}/getRate', 'getRate')->name('getRate');
-    // });
-    Route::controller(OvertimesController::class)->prefix('overtime')->group(function() {
-      Route::get('{employee}/getHourlyPrice', 'getHourlyPrice')->name('overtime.getHourlyPrice');
-      Route::get('{date}/getRate', 'getRate')->name('overtime.getRate');
+    Route::group(['controller' => OvertimesController::class, 'prefix' => 'overtime', 'as' => 'overtime.'], function() {
+        Route::get('{employee}/getHourlyPrice', 'getHourlyPrice')->name('getHourlyPrice');
+        Route::get('{date}/getRate', 'getRate')->name('getRate');
     });
 
     Route::controller(AttendanceController::class)->group(function() {
@@ -46,7 +42,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('employee/{employee}/getData', [EmployeesController::class,'getData'])->name('employee.getData');
     Route::get('advanced-payment/{employee}/getData', [AdvancedPaymentController::class, 'getData'])->name('advanced-payment.getData');
-    Route::post('vacation/getData', [VacationController::class,'getData']);
+    Route::get('vacation/{employee}/getData', [VacationController::class,'getData'])->name('vacation.getData');
     Route::get('salary', [SalaryController::class,'index'])->name('salary.index');
 
     route::resources([

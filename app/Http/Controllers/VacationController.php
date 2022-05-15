@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Vacation;
 use App\Models\Employee;
 use App\Http\Requests\VacationRequest;
+use Illuminate\Support\Facades\DB;
 
 class VacationController extends Controller
 {
@@ -17,7 +18,7 @@ class VacationController extends Controller
     public function index(Request $request)
     {
         $params = $request->except('_token');
-        $vacations = Vacation::filter($params)->orderBy('date_from', 'desc')->get();
+        $vacations = auth()->user()->vacations()->filter($params)->with('employee:id,full_name')->orderBy('date_from', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
         return view('vacation.index', compact('vacations', 'date'));
     }
@@ -29,11 +30,10 @@ class VacationController extends Controller
      */
     public function create()
     {
-        $employees = Employee::where('active', 1)->orderBy('full_name', 'asc')->get();
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get();
         $employees = $employees->filter(function ($employee) {
             return $employee->canTakeVacation();
         });
-
         return view('vacation.create', compact('employees'));
     }
 
@@ -45,32 +45,17 @@ class VacationController extends Controller
      */
     public function store(VacationRequest $request)
     {
-        $employee = Employee::find($request->employee_id);
-        $vacationDays = $request->days;
-
-        $vacation = new Vacation();
-        $vacation->date_from = $request->date_from;
-        $vacation->date_to = Vacation::getDateTo($request->date_from, $vacationDays);
-        $vacation->days = $vacationDays;
-        $vacation->employee_id = $request->employee_id;
-        $vacation->note = $request->note ? $request->note : 'N/A';
-
-        $employee->vacations()->save($vacation);
-        $employee->taken_vacations_days += $vacationDays;
-        $employee->save();
-
+        DB::transaction(function () use ($request) {
+            Vacation::create([
+                'date_from' => $request->date_from,
+                'date_to' => Vacation::getDateTo($request->date_from, $request->days),
+                'days' => $request->days,
+                'employee_id' => $request->employee_id,
+                'note' => $request->note ? $request->note : 'N/A',
+            ]);
+            Employee::findOrFail($request->employee_id)->increment('taken_vacations_days', $request->days);
+        });
         return redirect()->route('vacation.index')->with('success', 'Vacation Added Successfully');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**
@@ -81,10 +66,10 @@ class VacationController extends Controller
      */
     public function edit(Vacation $vacation)
     {
-        $vacationDays = $vacation->employee->getVacationDays();
-        $thisVacationDays = $vacation->days;
-        $totalVacationDays = $vacationDays + $thisVacationDays;
+        abort_if($vacation->employee->user_id !== auth()->id(), 403);
 
+        $vacationDays = $vacation->employee->getVacationDays();
+        $totalVacationDays = $vacationDays + $vacation->days;
         return view('vacation.edit', compact('vacation', 'totalVacationDays'));
     }
 
@@ -97,20 +82,17 @@ class VacationController extends Controller
      */
     public function update(VacationRequest $request, Vacation $vacation)
     {
-        $employee = Employee::find($request->employee_id);
+        abort_if($vacation->employee->user_id !== auth()->id(), 403);
 
-        $oldVacationDays = $vacation->days;
-        $vacationDays = $request->days;
-
-        $vacation->date_from = $request->date_from;
-        $vacation->date_to = Vacation::getDateTo($request->date_from, $vacationDays);
-        $vacation->days = $vacationDays;
-        $vacation->note = $request->note ? $request->note : 'N/A';
-
-        $employee->vacations()->save($vacation);
-        $employee->taken_vacations_days += $vacationDays - $oldVacationDays;
-        $employee->save();
-
+        DB::transaction(function () use ($vacation, $request) {
+            Employee::findOrFail($request->employee_id)->increment('taken_vacations_days', $request->days - $vacation->days);
+            $vacation->update([
+                'date_from' => $request->date_from,
+                'date_to' => Vacation::getDateTo($request->date_from, $request->days),
+                'days' => $request->days,
+                'note' => $request->note ? $request->note : 'N/A',
+            ]);
+        });
         return redirect()->route('vacation.index')->with('success', 'Vacation edited Successfully');
     }
 
@@ -122,15 +104,20 @@ class VacationController extends Controller
      */
     public function destroy(Vacation $vacation)
     {
-        $vacation->employee->taken_vacations_days -= $vacation->days;
-        $vacation->employee->save();
-        $vacation->delete();
+        abort_if($vacation->employee->user_id !== auth()->id(), 403);
+
+        DB::transaction(function() use ($vacation) {
+            $vacation->employee->decrement('taken_vacations_days', $vacation->days);
+            $vacation->delete();
+        });
         return redirect()->route('vacation.index')->with('success', 'Vacation Deleted Successfully');
     }
 
-    public function getData(Request $request)
+    public function getData(Employee $employee)
     {
-        $employee = Employee::findOrFail($request->employee_id);
+        if ($employee->user_id !== auth()->id())
+            return response()->json(['message' => 'forbiden'], 403);
+
         return response()->json([
             'vacationStartCountAt' => $employee->getTakingVacationStartAt(),
             'vacationDays' => $employee->getVacationDays(),

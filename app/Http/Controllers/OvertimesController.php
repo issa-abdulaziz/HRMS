@@ -16,7 +16,6 @@ class OvertimesController extends Controller
      */
     public function index(Request $request)
     {
-        dump(Overtime::getTotalOvertimeAmount(date('Y-m')));
         $params = $request->except('_token');
         $overtimes = auth()->user()->overtimes()->filter($params)->with('employee:id,full_name')->orderBy('date', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
