@@ -168,7 +168,7 @@
                 </tr>
                 <tr>
                   <td>Work Shift</td>
-                  <td class="text-end font-weight-medium">{{ $employee->shift->title }}</td>
+                  <td class="text-end font-weight-medium">{{ $employee->shift?->title }}</td>
                 </tr>
                 <tr>
                   <td>Hired At</td>

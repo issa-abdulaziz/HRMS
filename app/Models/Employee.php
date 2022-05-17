@@ -41,7 +41,7 @@ class Employee extends Model
 
     public function getHourlyPrice()
     {
-        return $this->salary / 30 / $this->shift->getWorkingHour();
+        return $this->shift ? $this->salary / 30 / $this->shift->getWorkingHour() : 0;
     }
     public function getVacationDays()
     {

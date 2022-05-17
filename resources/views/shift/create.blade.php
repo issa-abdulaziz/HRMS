@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Add new shit</h3>
+    <h3>Add new shift</h3>
     <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
   </div>
   <form action="{{ route('shift.store') }}" method="POST">

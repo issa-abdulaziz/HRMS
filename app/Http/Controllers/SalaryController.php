@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Employee;
 
 class SalaryController extends Controller
 {
@@ -20,7 +19,7 @@ class SalaryController extends Controller
     public function index(Request $request)
     {
         $date = $request->has('date') ? $request->date : date('Y-m');
-        $employees = Employee::where('active', true)->where('hired_at', '<=', \Carbon\Carbon::parse($date)->endOfMonth()->toDateString())->get();
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->where('hired_at', '<=', \Carbon\Carbon::parse($date)->endOfMonth()->toDateString())->get();
 
         $data = $employees->map(function ($employee, $key) use ($date) {
             $overtimeAmount = $employee->getOvertimeAmount($date);
