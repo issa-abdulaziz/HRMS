@@ -6,6 +6,7 @@
     <input type="month" id="date" name="date" value="{{ $date }}" class="form-control my-3">
   </form>
 
+  @if (count($data) > 0)
   <table class="table hover stripe row-border display nowrap" id="table_id" style="width:100%">
     <thead class="thead-light">
       <tr>
@@ -20,7 +21,6 @@
       </tr>
     </thead>
     <tbody>
-      @if (count($data) > 0)
         @foreach ($data as $entry)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
@@ -33,10 +33,11 @@
             <td>{{ $entry['netSalary'] }} {{ session('setting')->currency }}</td>
           </tr>
         @endforeach
-      @endif
     </tbody>
   </table>
-
+  @else
+    <p>No Employee Were Hired At This Date</p>
+  @endif
 @endsection
 @push('script')
   <script>
