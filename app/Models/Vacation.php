@@ -8,6 +8,7 @@ use Carbon\Carbon;
 class Vacation extends Model
 {
     public $timestamps = false;
+    protected $guarded = [];
 
     public function employee()
     {

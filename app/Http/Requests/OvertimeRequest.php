@@ -9,7 +9,7 @@ use App\Rules\AfterHiring;
 class OvertimeRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,7 +28,7 @@ class OvertimeRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => 'required|exists:employees,id,user_id,' . auth()->id(),
             'date' => [
                 'required',
                 'date',

@@ -27,6 +27,17 @@ class LoginSuccessful
      */
     public function handle(Login $event)
     {
-        session(['setting' => Setting::first()]);
+        Setting::firstOrCreate([
+            'user_id' => auth()->id(),
+        ],[
+            'currency' => 'USD',
+            'weekend' => 'Friday',
+            'normal_overtime_rate' => 1.5,
+            'weekend_overtime_rate' => 2,
+            'leeway_discount_rate' => 1.5,
+            'vacation_rate' => 1.25,
+            'taking_vacation_allowed_after' => 3,
+        ]);
+        session(['setting' => Setting::whereBelongsTo(auth()->user())->first()]);
     }
 }

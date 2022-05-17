@@ -8,7 +8,12 @@ use DateTime;
 class Employee extends Model
 {
     public $timestamps = false;
+    protected $guarded = [];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function shift()
     {
         return $this->belongsTo(Shift::class);
@@ -36,16 +41,14 @@ class Employee extends Model
 
     public function getHourlyPrice()
     {
-        return $this->salary / 30 / $this->shift->getWorkingHour();
+        return $this->shift ? $this->salary / 30 / $this->shift->getWorkingHour() : 0;
     }
     public function getVacationDays()
     {
-        $takenVacation = $this->taken_vacations_days;
         $vacationStartCountAt = new DateTime($this->vacation_start_count_at);
-        $today = new DateTime("today");
-        $months = $vacationStartCountAt->diff($today)->y * 12 + $vacationStartCountAt->diff($today)->m;
+        $months = $vacationStartCountAt->diff(today())->y * 12 + $vacationStartCountAt->diff(today())->m;
         $totalVacations = $months * session('setting')->vacation_rate;
-        return ($totalVacations - $takenVacation);
+        return ($totalVacations - $this->taken_vacations_days);
     }
     public function getTakingVacationStartAt()
     {
@@ -120,7 +123,6 @@ class Employee extends Model
     public function canTakeVacation()
     {
         $takingVacationStartAt = new DateTime($this->getTakingVacationStartAt());
-        $today = today();
-        return (floor($this->getVacationDays()) > 0) && ($today >= $takingVacationStartAt);
+        return (floor($this->getVacationDays()) > 0) && (today() >= $takingVacationStartAt);
     }
 }

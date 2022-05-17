@@ -19,14 +19,15 @@ class SettingsController extends Controller
 
     public function update(SettingRequest $request, Setting $setting)
     {
-        $setting->weekend = $request->weekend;
-        $setting->normal_overtime_rate = $request->normalOvertimeRate;
-        $setting->weekend_overtime_rate = $request->weekendOvertimeRate;
-        $setting->leeway_discount_rate = $request->leewayDiscountRate;
-        $setting->vacation_rate = $request->vacationRate;
-        $setting->taking_vacation_allowed_after = $request->takingVacationAllowedAfter;
-        $setting->currency = $request->currency;
-        $setting->save();
+        $setting->update([
+            'weekend' => $request->weekend,
+            'normal_overtime_rate' => $request->normalOvertimeRate,
+            'weekend_overtime_rate' => $request->weekendOvertimeRate,
+            'leeway_discount_rate' => $request->leewayDiscountRate,
+            'vacation_rate' => $request->vacationRate,
+            'taking_vacation_allowed_after' => $request->takingVacationAllowedAfter,
+            'currency' => $request->currency,
+        ]);
         return redirect()->route('setting.index')->with('success', 'Setting Updated Successfully');
     }
 }

@@ -5,9 +5,8 @@ $('#employee_id').change(function(){
         }
     });
     $.ajax({
-        type: "POST",
-        url: "/overtime/getHourlyPrice",
-        data: {employee_id:$('#employee_id').val()},
+        type: "get",
+        url: config.routes.hourlyPrice.replace('%employee%', $('#employee_id').val()),
         dataType: 'json',
         success: function (response) {
             $('#hourly_price').val(response.hourly_price.toFixed(2));
@@ -50,15 +49,15 @@ function getAmount() {
 }
 
 function getRate() {
+    console.log('dd');
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
     $.ajax({
-        type: "POST",
-        url: "/overtime/getRate",
-        data: {date:$('#date').val()},
+        type: "get",
+        url: config.routes.rate.replace('%date%', $('#date').val()),
         dataType: 'json',
         success: function (response) {
             $('#rate').val(response.rate);

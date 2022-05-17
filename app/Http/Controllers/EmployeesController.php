@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Shift;
 use App\Http\Requests\EmployeeRequest;
@@ -16,7 +15,7 @@ class EmployeesController extends Controller
      */
     public function index()
     {
-        $employees = Employee::orderBy('full_name', 'asc')->get();
+        $employees = auth()->user()->employees()->orderBy('full_name', 'asc')->get();
         return view('employee.index', compact('employees'));
     }
 
@@ -27,7 +26,7 @@ class EmployeesController extends Controller
      */
     public function create()
     {
-        $shifts = Shift::select('id', 'title')->get();
+        $shifts = auth()->user()->shifts()->get(['id', 'title']);
         return view('employee.create', compact('shifts'));
     }
 
@@ -39,21 +38,20 @@ class EmployeesController extends Controller
      */
     public function store(EmployeeRequest $request)
     {
-        $employee = new Employee();
-        $employee->full_name = $request->full_name;
-        $employee->date_of_birth = $request->date_of_birth;
-        $employee->city = $request->city;
-        $employee->phone_number = $request->phone_number;
-        $employee->hired_at = $request->hired_at;
-        $employee->position = $request->position;
-        $employee->salary = $request->salary;
-        $employee->active = $request->has('active') ? 1 : 0;
-        $employee->taken_vacations_days = 0;
-        $employee->vacation_start_count_at = $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null;
-
-        $shift = Shift::find($request->shift_id);
-        $shift->employees()->save($employee);
-
+        Employee::create([
+            'full_name' => $request->full_name,
+            'date_of_birth' => $request->date_of_birth,
+            'city' => $request->city,
+            'phone_number' => $request->phone_number,
+            'hired_at' => $request->hired_at,
+            'position' => $request->position,
+            'salary' => $request->salary,
+            'active' => $request->has('active') ? 1 : 0,
+            'taken_vacations_days' => 0,
+            'vacation_start_count_at' => $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null,
+            'shift_id' => $request->shift_id,
+            'user_id' => auth()->id(),
+        ]);
         return redirect()->route('employee.index')->with('success', 'employee Added Successfully');
     }
 
@@ -65,6 +63,7 @@ class EmployeesController extends Controller
      */
     public function show(Employee $employee)
     {
+        abort_if($employee->user_id !== auth()->id(), 403);
         $date = date('Y-m');
 
         $overtimeAmount = $employee->getOvertimeAmount($date);
@@ -92,7 +91,8 @@ class EmployeesController extends Controller
      */
     public function edit(Employee $employee)
     {
-        $shifts = Shift::select('id', 'title')->get();
+        abort_if($employee->user_id !== auth()->id(), 403);
+        $shifts = Shift::whereBelongsTo(auth()->user())->get(['id', 'title']);
         return view('employee.edit', compact('employee', 'shifts'));
     }
 
@@ -105,19 +105,19 @@ class EmployeesController extends Controller
      */
     public function update(EmployeeRequest $request, Employee $employee)
     {
-        $employee->full_name = $request->full_name;
-        $employee->date_of_birth = $request->date_of_birth;
-        $employee->city = $request->city;
-        $employee->phone_number = $request->phone_number;
-        $employee->hired_at = $request->hired_at;
-        $employee->position = $request->position;
-        $employee->salary = $request->salary;
-        $employee->active = $request->has('active') ? 1 : 0;
-        $employee->vacation_start_count_at = $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null;
-
-        $shift = Shift::find($request->shift_id);
-        $shift->employees()->save($employee);
-
+        abort_if($employee->user_id !== auth()->id(), 403);
+        $employee->update([
+            'full_name' => $request->full_name,
+            'date_of_birth' => $request->date_of_birth,
+            'city' => $request->city,
+            'phone_number' => $request->phone_number,
+            'hired_at' => $request->hired_at,
+            'position' => $request->position,
+            'salary' => $request->salary,
+            'active' => $request->has('active') ? 1 : 0,
+            'vacation_start_count_at' => $request->vacation_start_count_at ? $request->vacation_start_count_at . '-1' : null,
+            'shift_id' => $request->shift_id,
+        ]);
         return redirect()->route('employee.index')->with('success', 'employee Edited Successfully');
     }
 
@@ -129,13 +129,14 @@ class EmployeesController extends Controller
      */
     public function destroy(Employee $employee)
     {
+        abort_if($employee->user_id !== auth()->id(), 403);
         $employee->delete();
         return redirect()->route('employee.index')->with('success', 'Employee Deleted Successfully');
     }
-    public function getData(Request $request)
+    public function getData(Employee $employee)
     {
-
-        $employee = Employee::findOrFail($request->employee_id);
+        if ($employee->user_id !== auth()->id())
+            return response()->json(['message' => 'forbiden'], 403);
 
         $months_arr = []; // can't be array, should be collection inorder to use the map function
         for ($t = 0; $t < 12; $t++) {

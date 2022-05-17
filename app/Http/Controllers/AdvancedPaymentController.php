@@ -17,7 +17,7 @@ class AdvancedPaymentController extends Controller
     public function index(Request $request)
     {
         $params = $request->except('_token');
-        $advancedPayments = AdvancedPayment::filter($params)->orderBy('date', 'desc')->get();
+        $advancedPayments = auth()->user()->advancedPayments()->filter($params)->with('employee:id,full_name')->orderBy('date', 'desc')->get();
         $date = $request->has('date') ? $params['date'] : date('Y-m');
         return view('advancedPayment.index')->with(['advancedPayments' => $advancedPayments, 'date' => $date]);
     }
@@ -29,7 +29,7 @@ class AdvancedPaymentController extends Controller
      */
     public function create()
     {
-        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get(['id', 'full_name']);
         return view('advancedPayment.create')->with(['employees' => $employees]);
     }
 
@@ -41,17 +41,12 @@ class AdvancedPaymentController extends Controller
      */
     public function store(AdvancedPaymentRequest $request)
     {
-        $request->validated();
-
-        $advancedPayment = new AdvancedPayment();
-        $advancedPayment->date = $request->date;
-        $advancedPayment->amount = $request->amount;
-        $advancedPayment->employee_id = $request->employee_id;
-        $advancedPayment->note = $request->note ? $request->note : 'N/A';
-
-        $employee = Employee::find($request->employee_id);
-        $employee->advancedPayments()->save($advancedPayment);
-
+        AdvancedPayment::create([
+            'date' => $request->date,
+            'amount' => $request->amount,
+            'employee_id' => $request->employee_id,
+            'note' => $request->note ? $request->note : 'N/A',
+        ]);
         return redirect()->route('advanced-payment.index')->with('success', 'Advanced Payment Added Successfully');
     }
 
@@ -63,6 +58,7 @@ class AdvancedPaymentController extends Controller
      */
     public function show(AdvancedPayment $advancedPayment)
     {
+        abort_if($advancedPayment->employee->user_id !== auth()->id(), 403);
         return view('advancedPayment.show', compact('advancedPayment'));
     }
 
@@ -74,7 +70,8 @@ class AdvancedPaymentController extends Controller
      */
     public function edit(AdvancedPayment $advancedPayment)
     {
-        $employees = Employee::select('id', 'full_name')->where('active', 1)->orderBy('full_name', 'asc')->get();
+        abort_if($advancedPayment->employee->user_id !== auth()->id(), 403);
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get(['id', 'full_name']);
         return view('advancedPayment.edit', compact('advancedPayment', 'employees'));
     }
 
@@ -87,14 +84,13 @@ class AdvancedPaymentController extends Controller
      */
     public function update(AdvancedPaymentRequest $request, AdvancedPayment $advancedPayment)
     {
-        $advancedPayment->date = $request->date;
-        $advancedPayment->amount = $request->amount;
-        $advancedPayment->employee_id = $request->employee_id;
-        $advancedPayment->note = $request->note ? $request->note : 'N/A';
-
-        $employee = Employee::find($request->employee_id);
-        $employee->advancedPayments()->save($advancedPayment);
-
+        abort_if($advancedPayment->employee->user_id !== auth()->id(), 403);
+        $advancedPayment->update([
+            'date' => $request->date,
+            'amount' => $request->amount,
+            'employee_id' => $request->employee_id,
+            'note' => $request->note ? $request->note : 'N/A',
+        ]);
         return redirect()->route('advanced-payment.index')->with('success', 'Advanced Payment Edited Successfully');
     }
 
@@ -106,13 +102,16 @@ class AdvancedPaymentController extends Controller
      */
     public function destroy(AdvancedPayment $advancedPayment)
     {
+        abort_if($advancedPayment->employee->user_id !== auth()->id(), 403);
         $advancedPayment->delete();
         return redirect()->route('advanced-payment.index')->with('success', 'Advanced Pyament Deleted Successfully');
     }
 
-    public function getData(Request $request)
+    public function getData(Employee $employee)
     {
-        $employee = Employee::findOrFail($request->employee_id);
+        if ($employee->user_id !== auth()->id())
+            return response()->json(['message' => 'forbiden'], 403);
+
         return response()->json([
             'hired_at' => $employee->hired_at,
         ]);

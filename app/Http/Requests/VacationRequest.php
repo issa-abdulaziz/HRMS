@@ -33,7 +33,7 @@ class VacationRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => ['required', 'exists:employees,id', $this->isMethod('PUT') ? new EmployeeNotChanged($this->vacation) : ''],
+            'employee_id' => ['required', 'exists:employees,id,user_id,' . auth()->id(), $this->isMethod('PUT') ? new EmployeeNotChanged($this->vacation) : ''],
             'days' => ['required', 'integer', 'min:1', new VacationDaysRule($this->employee_id, $this->vacation)],
             'date_from' => [
                 'required',

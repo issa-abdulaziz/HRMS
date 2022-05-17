@@ -4,15 +4,6 @@
     <h3>Add new Vacation</h3>
     <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
   </div>
-  {{-- <div>
-    @foreach ($employees as $employee)
-      <div id="{{ $employee->id }}">
-        <input type="hidden" value="{{ $employee->getVacationDays() }}" class="vacationDays">
-        <input type="hidden" value="{{ $employee->getTakingVacationStartAt() }}" class="vacationStartCountAt">
-      </div>
-    @endforeach
-  </div> --}}
-
   <form action="{{ route('vacation.store') }}" method="POST">
     @csrf
     <div class="form-group">
@@ -44,18 +35,6 @@
 
 @push('script')
   <script>
-    // $('body').on('change', '#employee_id', setAttr);
-    // setAttr();
-
-    // function setAttr() {
-    //   let employee_id = $('#employee_id').val();
-    //   if (employee_id) {
-    //     let vacationStartCountAt = $('#' + employee_id + ' .vacationStartCountAt').val();
-    //     let vacationDays = $('#' + employee_id + ' .vacationDays').val();
-    //     $('#date_from').attr('min', vacationStartCountAt);
-    //     $('#days').attr('max', vacationDays);
-    //   }
-    // }
     $('body').on('change', '#employee_id', function() {
       $.ajaxSetup({
         headers: {
@@ -63,11 +42,8 @@
         }
       });
       $.ajax({
-        type: "POST",
-        url: "/vacation/getData",
-        data: {
-          employee_id: $('#employee_id').val()
-        },
+        type: "get",
+        url: "{{ route('vacation.getData', ['%employee%']) }}".replace('%employee%', $('#employee_id').val()),
         dataType: 'json',
         success: function(response) {
           $('#date_from').attr('min', response.vacationStartCountAt);

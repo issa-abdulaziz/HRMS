@@ -14,12 +14,11 @@ class CreateAdvancedPaymentsTable extends Migration
     public function up()
     {
         Schema::create('advanced_payments', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->date('date');
             $table->integer('amount');
             $table->string('note');
-            $table->unsignedInteger('employee_id');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
         });
     }
 

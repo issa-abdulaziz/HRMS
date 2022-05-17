@@ -18,10 +18,8 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $shifts = Shift::select('id', 'title')->get();
-        $employees = Employee::where('active', 1)
-            ->where('shift_id', $shifts[0]->id)
-            ->where('hired_at', '<=', date('Y-m-d'))->get();
+        $shifts = auth()->user()->shifts()->get(['id', 'title']);
+        $employees = auth()->user()->employees()->whereActive(1)->where('shift_id', $shifts->first()?->id)->where('hired_at', '<=', now())->orderBy('full_name', 'asc')->get();
         return view('attendance.index', compact('shifts', 'employees'));
     }
 
@@ -29,10 +27,9 @@ class AttendanceController extends Controller
     {
         $date = $request->date;
         $shift_id = $request->shift_id;
-        $shift = Shift::find($shift_id);
+        $shift = Shift::whereBelongsTo(auth()->user())->findOrFail($shift_id);
 
-        $employeesInVacation = Employee::select('employees.id', 'employees.full_name')
-            ->where('active', 1)
+        $employeesInVacation = auth()->user()->employees()->whereActive(1)
             ->orderBy('employees.full_name', 'asc')
             ->where('employees.shift_id', $shift_id)
             ->where('employees.hired_at', '<=', $date)
@@ -41,17 +38,17 @@ class AttendanceController extends Controller
                     ->where('vacations.date_from', '<=', $date)
                     ->where('vacations.date_to', '>=', $date);
             })
-            ->get();
+            ->get(['employees.id', 'employees.full_name']);
 
         $employeesInVacation_ids = $employeesInVacation->map(function ($employee) {
             return $employee->id;
         });
 
-        $employees = Employee::select('id', 'full_name')->where('active', 1)
+        $employees = auth()->user()->employees()->whereActive(1)
             ->whereNotIn('id', $employeesInVacation_ids)
             ->orderBy('full_name', 'asc')
             ->where('shift_id', $shift_id)
-            ->where('hired_at', '<=', $date)->get();
+            ->where('hired_at', '<=', $date)->get(['id', 'full_name']);
 
         $employees_ids = $employees->map(function ($employee) {
             return $employee->id;
@@ -73,15 +70,16 @@ class AttendanceController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         $validator = Validator::make($request->all(), [
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => 'required|exists:employees,id,user_id,' . auth()->id(),
             'date' => 'required|date|date_format:Y-m-d',
             'present' => 'required',
         ]);
         if ($validator->passes()) {
-            $employee = Employee::find($request->employee_id);
+            $employee = Employee::findOrFail($request->employee_id);
             $shift = $employee->shift;
-            $attendance = Attendance::where('employee_id', $request->employee_id)->where('date', $request->date)->first();
+            $attendance = Attendance::where('employee_id', $request->employee_id)->where('date', $request->date)->whereHas('employee', fn ($query) => $query->whereBelongsTo(auth()->user()))->first();
 
             if ($attendance == null) {
                 $attendance = new Attendance();
@@ -139,7 +137,7 @@ class AttendanceController extends Controller
 
     public function destroy($date)
     {
-        $deletedRows = Attendance::where('date', $date)->delete();
+        $deletedRows = Attendance::whereHas('employee', fn($query) => $query->whereBelongsTo(auth()->user()))->where('date', $date)->delete();
         if ($deletedRows)
             return redirect()->back()->withInput()->with('success', 'records at ' . $date . ' deleted successfully');
         return redirect()->back()->withInput()->with('error', 'records at ' . $date . ' has been not deleted');
