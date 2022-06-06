@@ -39,6 +39,14 @@ class Employee extends Model
         return $this->hasMany(Vacation::class)->orderBy('date_to', 'desc');
     }
 
+    public function scopeInVacation($query, $date)
+    {
+        return $query->whereHas('vacations', function ($query) use ($date) {
+            return $query->where('date_from', '<=', $date)
+                ->where('date_to', '>=', $date);
+        });
+    }
+
     public function getHourlyPrice()
     {
         return $this->shift ? $this->salary / 30 / $this->shift->getWorkingHour() : 0;

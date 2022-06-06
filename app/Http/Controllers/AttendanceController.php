@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Validator;
-use DateTime;
-use App\Models\Employee;
+use App\Http\Requests\AttendanceRequest;
 use App\Models\Attendance;
 use App\Models\Shift;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Validation\ValidationException;
 
 class AttendanceController extends Controller
 {
@@ -23,123 +23,84 @@ class AttendanceController extends Controller
         return view('attendance.index', compact('shifts', 'employees'));
     }
 
-    public function check(Request $request)
+    public function check($date, Shift $shift)
     {
-        $date = $request->date;
-        $shift_id = $request->shift_id;
-        $shift = Shift::whereBelongsTo(auth()->user())->findOrFail($shift_id);
+        abort_if($shift->user_id != auth()->id(), 403);
 
-        $employeesInVacation = auth()->user()->employees()->whereActive(1)
-            ->orderBy('employees.full_name', 'asc')
-            ->where('employees.shift_id', $shift_id)
-            ->where('employees.hired_at', '<=', $date)
-            ->join('vacations', function ($join) use ($date) {
-                $join->on('employees.id', '=', 'vacations.employee_id')
-                    ->where('vacations.date_from', '<=', $date)
-                    ->where('vacations.date_to', '>=', $date);
-            })
-            ->get(['employees.id', 'employees.full_name']);
+        $employeesInVacation = auth()->user()->employees()->whereActive(1)->where('shift_id', $shift->id)
+        ->where('hired_at', '<=', $date)->inVacation($date)->pluck('id')->toArray();
 
-        $employeesInVacation_ids = $employeesInVacation->map(function ($employee) {
-            return $employee->id;
+        $employees = auth()->user()->employees()->whereActive(1)->where('shift_id', $shift->id)->where('hired_at', '<=', $date)->with(['shift', 'attendances' => fn ($query) => $query->where('date', $date)])->orderBy('full_name', 'desc')->get();
+
+        $data = $employees->map(function ($employee) use ($employeesInVacation) {
+            return [
+                'employee_id' => $employee->id,
+                'full_name' => $employee->full_name,
+                'present' => $employee->attendances->first() ? $employee->attendances->first()->present : 0,
+                'time_in' => $employee->attendances->first() && $employee->attendances->first()->present ? Carbon::parse($employee->attendances->first()->time_in)->format('H:i') : '',
+                'time_out' => $employee->attendances->first() && $employee->attendances->first()->present ? Carbon::parse($employee->attendances->first()->time_out)->format('H:i') : '',
+                'note' => $employee->attendances->first() && $employee->attendances->first()->present ? $employee->attendances->first()->note : '',
+                'has_attendance' => $employee->attendances->first() ? true : false,
+                'in_vacation' => in_array($employee->id, $employeesInVacation),
+            ];
         });
-
-        $employees = auth()->user()->employees()->whereActive(1)
-            ->whereNotIn('id', $employeesInVacation_ids)
-            ->orderBy('full_name', 'asc')
-            ->where('shift_id', $shift_id)
-            ->where('hired_at', '<=', $date)->get(['id', 'full_name']);
-
-        $employees_ids = $employees->map(function ($employee) {
-            return $employee->id;
-        });
-
-        $attendance = Attendance::where('date', $date)
-            ->where(function ($query) use ($employees_ids, $employeesInVacation_ids) {
-                $query->whereIn('employee_id', $employees_ids)
-                    ->orWhereIn('employee_id', $employeesInVacation_ids);
-            })->get();
 
         return response()->json([
-            'attendance' => $attendance,
-            'employees' => $employees,
-            'employeesInVacation' => $employeesInVacation,
+            'data' => $data,
             'shift' => $shift,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(AttendanceRequest $request)
     {
-        dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'employee_id' => 'required|exists:employees,id,user_id,' . auth()->id(),
-            'date' => 'required|date|date_format:Y-m-d',
-            'present' => 'required',
-        ]);
-        if ($validator->passes()) {
-            $employee = Employee::findOrFail($request->employee_id);
-            $shift = $employee->shift;
-            $attendance = Attendance::where('employee_id', $request->employee_id)->where('date', $request->date)->whereHas('employee', fn ($query) => $query->whereBelongsTo(auth()->user()))->first();
+        $shift = Shift::find($request->shift);
 
-            if ($attendance == null) {
-                $attendance = new Attendance();
+        $employeesInVacation = auth()->user()->employees()->whereActive(1)->where('employees.shift_id', $shift->id)
+        ->where('employees.hired_at', '<=', $request->date)->inVacation($request->date)->pluck('id')->toArray();
+
+        foreach ($request->attendance as $key => $value) {
+            $absent_or_inVacation = !array_key_exists('present', $value) || in_array($value['employee_id'], $employeesInVacation);
+            if ($absent_or_inVacation)
+            {
+                Attendance::updateOrCreate([
+                    'employee_id' => $value['employee_id'],
+                    'date' => $request->date,
+                ], [
+                    'present' => 0,
+                    'time_in' => '',
+                    'time_out' => '',
+                    'note' => '',
+                    'total_leeway' => 0,
+                ]);
+            }
+            else
+            {
+                $total_leeway = calculateDiffBtw2TimeString($shift->starting_time, $value['time_in'], $shift->across_midnight) + calculateDiffBtw2TimeString($value['time_out'], $shift->leaving_time, $shift->across_midnight);
+                Attendance::updateOrCreate([
+                    'employee_id' => $value['employee_id'],
+                    'date' => $request->date,
+                ], [
+                    'present' => 1,
+                    'time_in' => $value['time_in'],
+                    'time_out' => $value['time_out'],
+                    'note' => $value['note'] ?? '',
+                    'total_leeway' => $total_leeway,
+                ]);
             }
 
-            $attendance->date = $request->date;
-            $attendance->present = filter_var($request->present, FILTER_VALIDATE_BOOLEAN);
-            if (filter_var($request->present, FILTER_VALIDATE_BOOLEAN)) {
-                $starting_time = new DateTime($shift->starting_time);
-                $time_in = new DateTime($request->time_in);
-                $comming_diff = $starting_time->diff($time_in);
-                $comming_leeway = $comming_diff->h * 60 + $comming_diff->i;
-
-                $leaving_time = new DateTime($shift->leaving_time);
-                $time_out = new DateTime($request->time_out);
-                $leaving_diff = $leaving_time->diff($time_out);
-                $leaving_leeway = $leaving_diff->h * 60 + $leaving_diff->i;
-
-                if ($shift->across_midnight) {
-                    $midnight = today();
-                    $starting_time_min = $starting_time->diff($midnight)->h * 60 + $starting_time->diff($midnight)->i;
-                    $time_in_min = $time_in->diff($midnight)->h * 60 + $time_in->diff($midnight)->i;
-
-                    $leaving_time_min = $leaving_time->diff($midnight)->h * 60 + $leaving_time->diff($midnight)->i;
-                    $time_out_min = $time_out->diff($midnight)->h * 60 + $time_out->diff($midnight)->i;
-
-                    if ($starting_time_min + $comming_leeway !== $time_in_min) {
-                        $comming_leeway = 24 * 60 - $comming_leeway;
-                    }
-
-                    if ($time_out_min + $leaving_leeway !== $leaving_time_min) {
-                        $leaving_leeway = 24 * 60 - $leaving_leeway;
-                    }
-                }
-
-                $leeway = $comming_leeway + $leaving_leeway;
-
-                $attendance->time_in = $request->time_in;
-                $attendance->time_out = $request->time_out;
-                $attendance->total_leeway = $leeway;
-            } else {
-                $attendance->time_in = null;
-                $attendance->time_out = null;
-                $attendance->total_leeway = 0;
-            }
-            $attendance->note = $request->note;
-
-            $employee->attendances()->save($attendance);
-
-            return response()->json(['success' => 'Added new records.']);
         }
-
-        return response()->json(['error' => $validator->errors()->all()]);
+        return redirect()->route('attendance.index')->with('success', 'Attendance Saved Successfully');
     }
 
     public function destroy($date)
     {
-        $deletedRows = Attendance::whereHas('employee', fn($query) => $query->whereBelongsTo(auth()->user()))->where('date', $date)->delete();
+        try {
+            $deletedRows = Attendance::where('date', $date)->whereHas('employee', fn ($query) => $query->whereBelongsTo(auth()->user()))->delete();
+        } catch(Exception $e) {
+            throw ValidationException::withMessages(['Something went wrong']);
+        }
         if ($deletedRows)
             return redirect()->back()->withInput()->with('success', 'records at ' . $date . ' deleted successfully');
-        return redirect()->back()->withInput()->with('error', 'records at ' . $date . ' has been not deleted');
+        return redirect()->back()->withInput()->with('error', 'There are no records at ' . $date . ' to be deleted');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use DateTime;
 
@@ -10,6 +11,16 @@ class Shift extends Model
 {
     public $timestamps = false;
     protected $guarded = [];
+
+    public function getStartingTimeAttribute($date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('H:i');
+    }
+
+    public function getLeavingTimeAttribute($date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('H:i');
+    }
 
     public function user()
     {
