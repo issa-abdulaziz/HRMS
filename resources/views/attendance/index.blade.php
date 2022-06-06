@@ -2,74 +2,52 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Attendence</h3>
-    <div class="d-flex justify-content-between align-items-center">
-      <h6 id="attendance-info" class="mr-3" style="display: none;color: red;">No Attendance taken</h6>
-      <button id="btn-cancel" class="btn btn-outline-danger mr-2">cancel</button>
-      <button id="btn-save" class="btn btn-primary">Save</button>
-    </div>
+    <button type="button" id="btn-delete" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeletionModal">Delete</button>
   </div>
-  <div class="form-group row my-4">
-    <label for="date" class="col-sm-2 col-form-label">Date:</label>
-    <div class="col-sm-4">
-      <input type="date" class="form-control" id="date" value="{{ $date ?? date('Y-m-d') }}">
-    </div>
-    <label for="minutes" class="col-sm-2 col-form-label">Shift:</label>
-    <div class="col-sm-4">
-      <select id="shift" class="custom-select" name="shift">
-        @foreach ($shifts as $shift)
-          <option value="{{ $shift->id }}" {{ old('shift') == $shift->id ? 'selected' : '' }}>{{ $shift->title }}
-          </option>
-        @endforeach
-      </select>
-    </div>
-  </div>
-  @if (count($employees) > 0)
-    <table class="table table-stripped">
-      <thead class="thead-light">
-        <tr>
-          <th style="width: 5%;">#</th>
-          <th style="width: 7%;">Present</th>
-          <th style="width: 23%;">Employee</th>
-          <th style="width: 15%;">Time-In</th>
-          <th style="width: 15%;">Time-Out</th>
-          <th style="width: 35%">Note</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-
-    <div id="next-to-table" class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center pl-3">
-        <label class="custom-checkbox m-0 mt-1"><input type="checkbox" class="check-all-box"><span
-            class="custom-label"></span></label>
-        <p class="m-0">Check All</p>
-      </div>
-    </div>
-
-    <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="noteModalLabel">Note</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="note" class="col-form-label">Note</label>
-              <textarea class="form-control" id="note" cols="30" rows="5"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="btn-save-note">Save</button>
-          </div>
+  <form action="{{ route('attendance.store') }}" method="POST">
+    @csrf
+    <div class="form-group row my-4">
+        <label for="date" class="col-sm-2 col-form-label">Date:</label>
+        <div class="col-sm-4">
+        <input type="date" class="form-control" name="date" id="date" value="{{ $date ?? now()->format('Y-m-d') }}">
         </div>
-      </div>
+        <label for="minutes" class="col-sm-2 col-form-label">Shift:</label>
+        <div class="col-sm-4">
+        <select name="shift" id="shift" class="custom-select">
+            @foreach ($shifts as $shift)
+            <option value="{{ $shift->id }}" {{ old('shift') == $shift->id ? 'selected' : '' }}>{{ $shift->title }}</option>
+            @endforeach
+        </select>
+        </div>
     </div>
+    @if (count($employees) > 0)
+        <table id="attendance_table" class="table table-stripped">
+            <thead class="thead-light">
+                <tr>
+                <th style="width: 4%;">#</th>
+                <th style="width: 6%;">Present</th>
+                <th style="width: 15%;">Employee</th>
+                <th style="width: 15%;">Time-In</th>
+                <th style="width: 15%;">Time-Out</th>
+                <th style="width: 32%">Note</th>
+                <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div id="next-to-table" class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center pl-3">
+                <label class="custom-checkbox m-0 pb-1"><input type="checkbox" class="check-all-box"><span
+                    class="custom-label"></span></label>
+                <p class="m-0">Check All</p>
+            </div>
+            <div class="d-flex align-items-center pr-3">
+                <button id="btn-cancel" class="btn btn-outline-danger mr-2" type="button">cancel</button>
+                <button id="btn-save" class="btn btn-primary" type="submit">Submit</button>
+            </div>
+        </div>
+    </form>
     @include('inc.confirmDeletion', array('title'=>'attendance'))
   @else
     <p>No Employee Added Yet</p>
@@ -77,276 +55,140 @@
 @endsection
 
 @push('script')
-  <script>
-    $('#noteModal').on('show.bs.modal', function(event) {
-      let td_note = $(event.relatedTarget);
-      let tr = td_note.parents("tr").first();
-      let full_name = tr.find('.full-name').text();
-      $('#noteModalLabel').text(full_name);
-      let note = td_note.text() === '...' ? '' : td_note.text();
-      var modal = $(this);
-      modal.find('.modal-body textarea').val(note);
-      $('#btn-save-note').click(function() {
-        let text = $('.modal-body textarea').val();
-        $(event.relatedTarget).text(text === '' ? '...' : text);
-        $('#noteModal').modal('hide');
-      });
-    });
+    <script>
+        let starting_time,leaving_time;
+        let delete_btn = $('#btn-delete');
 
-    let starting_time, leaving_time;
+        checkAttendance();
+        $('#date').change(checkAttendance);
+        $('#shift').change(checkAttendance);
+        $('#btn-cancel').click(checkAttendance);
 
-    checkAttendance();
-
-    $('#date').change(function() {
-      checkAttendance();
-    });
-
-    $('#shift').change(function() {
-      checkAttendance();
-    });
-
-    $('#btn-cancel').click(function() {
-      checkAttendance();
-    });
-
-    function addDeleteButton() {
-      removeDeleteButton();
-      let date = $('#date').val();
-      let btn_delete = $(
-        '<button type="button" id="btn-delete" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeletionModal" data-id="' +
-        date + '" data-date="' + date + '"></button>'
-      ).text('Delete');
-      $('#next-to-table').append(btn_delete);
-    }
-
-    function removeDeleteButton() {
-      $('#btn-delete').remove();
-    }
-
-    function checkAttendance() {
-      $.ajaxSetup({
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        function checkAttendance() {
+            delete_btn.attr('data-id', $('#date').val());
+            delete_btn.attr('data-date', $('#date').val());
+            $.ajax({
+                type: "GET",
+                url: "{{ route('attendance.check', [':date', ':shift']) }}".replace(':date', $('#date').val()).replace(':shift', $('#shift').val()),
+                dataType: 'json',
+                success: function(response) {
+                    starting_time =  response.shift.starting_time;
+                    leaving_time =  response.shift.leaving_time;
+                    displayEmployee(response.data);
+                },
+                error: function(data) {
+                    console.log('Error:', data);
+                }
+            });
         }
-      });
-      $.ajax({
-        type: "POST",
-        url: "/attendance/check",
-        data: {
-          date: $('#date').val(),
-          shift_id: $('#shift').val()
-        },
-        dataType: 'json',
-        success: function(response) {
-          starting_time = response.shift.starting_time;
-          leaving_time = response.shift.leaving_time;
-          displayEmployee(response.employees);
-          if (response.employeesInVacation.length > 0)
-            displayEmployeeInVacation(response.employeesInVacation);
-          if (response.attendance.length > 0) {
-            $('#attendance-info').css('display', 'none');
-            fillData(response.attendance);
-          } else {
-            removeDeleteButton();
-            $('#attendance-info').css('display', 'block');
-            $('.check-all-box').prop('checked', false);
-          }
-        },
-        error: function(data) {
-          console.log('Error:', data);
+
+        function displayEmployee(data) {
+            $('#attendance_table tbody').empty();
+            data.forEach((employee, index) => {
+                let url = "{{ route('employee.show', '%id%') }}".replace('%id%', employee.employee_id);
+                let number = $('<td class="align-middle row-number"></td>').html(index + 1);
+                let present = $('<td class="align-middle"></td>').html(
+                '<label class="custom-checkbox"><input type="checkbox" name="attendance[' + employee.employee_id + '][present]" ' + (employee.present == 1 ? "checked" : "") + ' class="' + (employee.in_vacation ? "" : "check-box") + '" ' + (employee.in_vacation ? "disabled" : "") + '><span class="custom-label"></span></label>'
+                );
+                let name = $('<td class="align-middle"></td>').html('<a href="' + url + '">' + employee.full_name + '</a><input type="hidden" name="attendance[' + employee.employee_id + '][employee_id]" value="' + employee.employee_id + '">');
+                let time_in = $('<td class="align-middle"></td>').html(
+                '<input type="time" name="attendance[' + employee.employee_id + '][time_in]" min="' + starting_time + '" max="' + leaving_time +
+                '" value="' + employee.time_in + '" ' + (employee.present == 0 || employee.in_vacation ? "readonly" : "") + '  class="form-control form-control-sm ' + (employee.in_vacation ? "" : "time-in") + '">');
+                let time_out = $('<td class="align-middle"></td>').html(
+                '<input type="time" name="attendance[' + employee.employee_id + '][time_out]" min="' + starting_time + '" max="' + leaving_time +
+                '" value="' + employee.time_out + '" ' + (employee.present == 0 || employee.in_vacation ? "readonly" : "") + ' class="form-control form-control-sm ' + (employee.in_vacation ? "" : "time-out") + '">');
+                let note = $('<td class="align-middle"></td>').html(
+                    '<textarea name="attendance[' + employee.employee_id + '][note]" ' + (employee.present == 0 || employee.in_vacation ? "readonly" : "") + ' cols="40" rows="2" class="form-control ' + (employee.in_vacation ? "" : "note") + '">' + employee.note + '</textarea>'
+                );
+                let badges = $('<td class="align-middle"></td>').html(
+                    (employee.in_vacation ? '<span class="badge badge-info mr-1">in-vacation</span>' :
+                    (!employee.has_attendance ? '<span class="badge badge-danger mr-1">no-attendance</span>' :
+                    (employee.present == 0 ? '<span class="badge badge-warning mr-1">absent</span>' : '')))
+                );
+                let tr = $('<tr></tr>').append(number, present, name, time_in, time_out, note, badges);
+                tr.attr('id', employee.id);
+                $('#attendance_table tbody').append(tr);
+                if (employee.in_vacation) {
+                    $('#attendance_table tbody').append(tr);
+                } else {
+                    $('#attendance_table tbody').prepend(tr);
+                    $('.row-number').each(function() {
+                        $(this).text(parseInt($(this).text()) + 1);
+                    });
+                    tr.find('.row-number').text(1);
+                }
+            });
         }
-      });
-    }
 
-    function displayEmployee(employees) {
-      $('tbody').empty();
-      employees.forEach((employee, index) => {
-        let number = $('<td></td>').html(index + 1);
-        let present = $('<td></td>').html(
-          '<label class="custom-checkbox"><input type="checkbox" class="check-box present"><span class="custom-label"></span></label>'
-        );
-        let name = $('<td class="full-name"></td>').html('<a href="/employee/' + employee.id + '">' + employee
-          .full_name + '</a>');
-        let time_in = $('<td></td>').html(
-          '<input type="time" min="' + starting_time + '" max="' + leaving_time +
-          '" class="form-control form-control-sm time-in time_in" disabled>');
-        let time_out = $('<td></td>').html(
-          '<input type="time" min="' + starting_time + '" max="' + leaving_time +
-          '" class="form-control form-control-sm time-out time_out" disabled>');
-        let note = $(
-          '<td style="text-overflow: ellipsis;" class="note text-nowrap overflow-hidden px-3" data-toggle="modal" data-target="#noteModal" title="">...</td>'
-        );
-        let tr = $('<tr></tr>').append(number, present, name, time_in, time_out, note);
-        tr.attr('id', employee.id);
-        $('tbody').append(tr);
-      });
-    }
-
-    function displayEmployeeInVacation(employees) {
-      let td = $('<td colspan="6" class="text-center"></td>').html("In Vacation");
-      $('tbody').append($('<tr></tr>').append(td));
-      employees.forEach((employee) => {
-        let currentRow = $('tbody tr').length;
-        let number = $('<td></td>').html(currentRow);
-        let present = $('<td></td>').html(
-          '<label class="custom-checkbox"><input type="checkbox" class="present" disabled><span class="custom-label"></span></label>'
-        );
-        let name = $('<td class="full-name"></td>').html('<a href="/employee/' + employee.id + '">' + employee
-          .full_name + '</a>');
-        let time_in = $('<td></td>').html(
-          '<input type="time" min="' + starting_time + '" max="' + leaving_time +
-          '" class="time_in form-control form-control-sm" disabled>');
-        let time_out = $('<td></td>').html(
-          '<input type="time" min="' + starting_time + '" max="' + leaving_time +
-          '" class="time_out form-control form-control-sm" disabled>');
-        let note = $(
-          '<td style="text-overflow: ellipsis;" class="note text-nowrap overflow-hidden px-3" data-toggle="modal" data-target="#noteModal" title="">...</td>'
-        );
-        let tr = $('<tr></tr>').append(number, present, name, time_in, time_out, note);
-        tr.attr('id', employee.id);
-        $('tbody').append(tr);
-      });
-    }
-
-    function fillData(attendance) {
-      addDeleteButton();
-      let presentEmployees = 0;
-      attendance.forEach(entry => {
-        let row = $('#' + entry.employee_id);
-        row.find('.check-box').prop("checked", entry.present);
-        row.find('.note').text(entry.note);
-        row.find('.note').attr('title', entry.note);
-        if (entry.present) {
-          presentEmployees++;
-          row.find('.time-in').val(entry.time_in);
-          row.find('.time-out').val(entry.time_out);
-          row.find('.time-in').prop('disabled', false);
-          row.find('.time-out').prop('disabled', false);
-        } else {
-          row.find('.time-in').prop('disabled', true);
-          row.find('.time-out').prop('disabled', true);
-        }
-      });
-      $('.check-all-box').prop('checked', presentEmployees === $('.check-box').length);
-    }
-
-    $('body').on('change', '.check-box', function() {
-      let row = $(this).parents("tr").first();
-      if (this.checked) {
-        row.find('.time-in').prop('disabled', false);
-        row.find('.time-out').prop('disabled', false);
-        row.find('.time-in').val(starting_time);
-        row.find('.time-out').val(leaving_time);
-        $('.check-all-box').prop('checked', $('.check-box:checked').length === $('.check-box').length);
-      } else {
-        row.find('.time-in').prop('disabled', true);
-        row.find('.time-out').prop('disabled', true);
-        row.find('.time-in').val('');
-        row.find('.time-out').val('');
-        $('.check-all-box').prop('checked', false);
-      }
-    });
-
-    $('body').on('change', '.check-all-box', function() {
-      if ($(this).prop('checked')) {
-        $('.check-box').prop('checked', true);
-        $('.time-in').prop('disabled', false);
-        $('.time-out').prop('disabled', false);
-        $('.time-in').val(starting_time);
-        $('.time-out').val(leaving_time);
-      } else {
-        $('.check-box').prop('checked', false);
-        $('.time-in').prop('disabled', true);
-        $('.time-out').prop('disabled', true);
-        $('.time-in').val('');
-        $('.time-out').val('');
-      }
-    });
-
-    $('#btn-save').click(function() {
-      $('table tbody tr').get().forEach(function(row, index, array) {
-        let employee_id = $(row).attr('id');
-        let present = $(row).find('.present').prop('checked');
-        let time_in = $(row).find('.time_in').val();
-        let time_out = $(row).find('.time_out').val();
-        let note = $(row).find('.note').text();
-        let date = $('#date').val();
-        if (employee_id) {
-          $.ajaxSetup({
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        $('body').on('change', '.check-all-box', function() {
+            let time_in_td = $('.time-in');
+            let time_out_td = $('.time-out');
+            let note_td = $('.note');
+            if ($(this).prop('checked')) {
+                $('.check-box').prop('checked', true);
+                time_in_td.prop('readonly', false);
+                time_out_td.prop('readonly', false);
+                note_td.prop('readonly', false);
+                time_in_td.val(starting_time);
+                time_out_td.val(leaving_time);
+            } else {
+                $('.check-box').prop('checked', false);
+                time_in_td.prop('readonly', true);
+                time_out_td.prop('readonly', true);
+                note_td.prop('readonly', true);
+                time_in_td.val('');
+                time_out_td.val('');
+                note_td.val('');
             }
-          });
-          $.ajax({
-            type: "POST",
-            url: "/attendance/store",
-            dataType: 'json',
-            data: {
-              employee_id,
-              present,
-              time_in,
-              time_out,
-              note,
-              date
-            },
-            success: function(response) {
-              if (index === array.length - 1) {
-                $('#attendance-info').css('display', 'none');
-                addDeleteButton();
-                $('main').prepend('<div class="alert alert-success m-3">Saved Successfully</div>');
-                setTimeout(function() {
-                  $('.alert-success').alert('close');
-                }, 3000);
-              }
-            },
-            error: function(data) {
-              console.log('Error:', data);
+        });
+
+        $('body').on('change', '.check-box', function() {
+            let row = $(this).closest("tr");
+            let time_in_td = row.find('.time-in');
+            let time_out_td = row.find('.time-out');
+            let note_td = row.find('.note');
+            if (this.checked) {
+                time_in_td.prop('readonly', false);
+                time_out_td.prop('readonly', false);
+                note_td.prop('readonly', false);
+                time_in_td.val(starting_time);
+                time_out_td.val(leaving_time);
+                $('.check-all-box').prop('checked', $('#attendance_table .check-box:checked').length === $('#attendance_table .check-box').length);
+            } else {
+                time_in_td.prop('readonly', true);
+                time_out_td.prop('readonly', true);
+                note_td.prop('readonly', true);
+                time_in_td.val('');
+                time_out_td.val('');
+                note_td.val('');
+                $('.check-all-box').prop('checked', false);
             }
-          });
-        }
-      });
-    });
+        });
 
-    $('body').on('click', '#btn-delete', function() {
-      let date = $('#date').val();
-      $.ajaxSetup({
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-      });
-      $.ajax({
-        type: "DELETE",
-        url: "/attendance/destroy",
-        dataType: 'json',
-        data: {
-          date
-        },
-        success: function(response) {
-          checkAttendance();
-        },
-        error: function(data) {
-          console.log('Error:', data);
-        }
-      });
-    });
+        $('body').on('blur', '.time-in', function() {
+            if ($(this).is(":invalid")) {
+                $(this).val(starting_time);
+            }
+        });
 
-    $('body').on('blur', '.time-in', function() {
-      if ($(this).is(":invalid")) {
-        $(this).val(starting_time);
-      }
-    });
-
-    $('body').on('blur', '.time-out', function() {
-      if ($(this).is(":invalid")) {
-        $(this).val(leaving_time);
-      }
-    });
-  </script>
-  <script type="text/javascript" src="{{ asset('js/_custom/confirmDeletion.js') }}"></script>
+        $('body').on('blur', '.time-out', function() {
+            if ($(this).is(":invalid")) {
+                $(this).val(leaving_time);
+            }
+        });
+    </script>
+    <script type="text/javascript" src="{{ asset('js/_custom/confirmDeletion.js') }}" defer></script>
 @endpush
 
 @push('style')
   <style>
+    input[readonly] {
+        background-color: #e9ecef;
+        opacity: 1;
+    }
+    label {
+        margin-bottom: 0;!important
+    }
     table {
       table-layout: fixed;
       width: 100%;
@@ -355,6 +197,7 @@
 
     .custom-checkbox {
       position: relative;
+      line-height: 1;
     }
 
     .custom-checkbox input {

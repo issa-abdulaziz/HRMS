@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 class CreateShiftsTable extends Migration
 {
@@ -17,8 +16,8 @@ class CreateShiftsTable extends Migration
         Schema::create('shifts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->time('starting_time');
-            $table->time('leaving_time');
+            $table->dateTime('starting_time');
+            $table->dateTime('leaving_time');
             $table->boolean('across_midnight');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });

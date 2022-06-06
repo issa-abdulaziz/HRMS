@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Shift;
 use App\Http\Requests\ShiftRequest;
+use Carbon\Carbon;
 
 class ShiftsController extends Controller
 {
@@ -40,8 +40,8 @@ class ShiftsController extends Controller
     {
         Shift::create([
             'title' => $request->title,
-            'starting_time' => $request->starting_time,
-            'leaving_time' => $request->leaving_time,
+            'starting_time' => Carbon::parse($request->starting_time),
+            'leaving_time' => Carbon::parse($request->leaving_time),
             'across_midnight' => $request->has('across_midnight') ? 1 : 0,
             'user_id' => auth()->id(),
         ]);
@@ -83,8 +83,8 @@ class ShiftsController extends Controller
         abort_if($shift->user_id !== auth()->id(), 403);
         $shift->update([
             'title' => $request->title,
-            'starting_time' => $request->starting_time,
-            'leaving_time' => $request->leaving_time,
+            'starting_time' => Carbon::parse($request->starting_time),
+            'leaving_time' => Carbon::parse($request->leaving_time),
             'across_midnight' => $request->has('across_midnight') ? 1 : 0,
         ]);
         return redirect()->route('shift.index')->with('success','Shift Updated Successfully');

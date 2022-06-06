@@ -31,13 +31,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{date}/getRate', 'getRate')->name('getRate');
     });
 
-    Route::controller(AttendanceController::class)->group(function() {
-      Route::prefix('attendance')->group(function() {
-        Route::get('/', 'index')->name('attendance.index');
-        Route::post('/check', 'check');
-        Route::post('/store', 'store');
-        Route::delete('/{date}', 'destroy');
-      });
+    Route::group(['controller' => AttendanceController::class, 'prefix' => 'attendance', 'as' => 'attendance.'], function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('check/{date}/{shift}', 'check')->name('check');
+        Route::post('store', 'store')->name('store');
+        Route::delete('/{date}', 'destroy')->name('destroy');
     });
 
     Route::get('employee/{employee}/getData', [EmployeesController::class,'getData'])->name('employee.getData');
@@ -47,10 +45,10 @@ Route::middleware(['auth'])->group(function () {
 
     route::resources([
         'employee' => EmployeesController::class,
-      'overtime'=> OvertimesController::class,
-      'advanced-payment'=> AdvancedPaymentController::class,
-      'vacation'=> VacationController::class,
-      'shift' => ShiftsController::class,
+        'overtime'=> OvertimesController::class,
+        'advanced-payment'=> AdvancedPaymentController::class,
+        'vacation'=> VacationController::class,
+        'shift' => ShiftsController::class,
     ]);
 });
 
