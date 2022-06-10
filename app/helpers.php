@@ -1,5 +1,6 @@
 <?php
 
+use App\models\Overtime;
 use Carbon\Carbon;
 
 function calculateDiffBtw2TimeString($time1, $time2, $crossing_midnight)
@@ -19,30 +20,51 @@ function calculateDiffBtw2TimeString($time1, $time2, $crossing_midnight)
     return $diffInMinutes;
 }
 
-function calculateTotalLeeway($shift, $time_in, $time_out)
+function getTotalLeewayAmount($month) {
+    $employees = auth()->user()->employees()->whereActive(1)->get();
+    $totalLeewayAmount = $employees->map(function($employee, $key) use ($month) {
+        return $employee->getLeewayDiscount($month);
+    });
+    return $totalLeewayAmount->sum();
+}
+
+function getTotalAbsenceAmount($month) {
+    $employees = auth()->user()->employees()->whereActive(1)->get();
+    $totalAbsenceAmount = $employees->map(function($employee, $key) use ($month) {
+        return $employee->getAbsentDayDiscountAmount($month);
+    });
+    return $totalAbsenceAmount->sum();
+}
+
+function getTotalOvertimeAmount($month)
 {
-    $starting_time = Carbon::parse($shift->starting_time);
-    $time_in = Carbon::parse($time_in);
-    $comming_leeway = $starting_time->diffInMinutes($time_in);
+    return Overtime::where('date', 'like', $month . '%')
+    ->whereHas('employee', fn ($query) => $query->where('user_id', auth()->id()))
+    ->sum('amount');
+}
 
-    $leaving_time = Carbon::parse($shift->leaving_time);
-    $time_out = Carbon::parse($time_out);
-    $leaving_leeway = $leaving_time->diffInMinutes($time_out);
+function isWeekend($date)
+{
+    return Carbon::parse($date)->format('l') == session('setting')->weekend;
+}
 
-    if ($shift->across_midnight) {
-        $starting_time_min = $starting_time->diffInMinutes(today());
-        $time_in_min = $time_in->diffInMinutes(today());
+function getDateTo($date, $vacationDays)
+{
+    $dateFrom = new Carbon($date);
 
-        $leaving_time_min = $leaving_time->diffInMinutes(today());
-        $time_out_min = $time_out->diffInMinutes(today());
-
-        if ($starting_time_min + $comming_leeway !== $time_in_min) {
-            $comming_leeway = 24 * 60 - $comming_leeway;
-        }
-
-        if ($time_out_min + $leaving_leeway !== $leaving_time_min) {
-            $leaving_leeway = 24 * 60 - $leaving_leeway;
-        }
+    $daysCollection = collect([]);
+    for ($x = 0; $x < $vacationDays; $x++) {
+        $daysCollection[] = $dateFrom->copy()->addDays($x)->format('l');
+        if ($x == ($vacationDays - 1) && isWeekend($daysCollection->last()))
+            $daysCollection[] = $dateFrom->copy()->addDays($x + 1)->format('l');
     }
-    return $comming_leeway + $leaving_leeway;
+
+    $weekends = $daysCollection->filter(function ($item) {
+        return isWeekend($item);
+    });
+
+    $dateTo = $dateFrom->copy()->addDays($weekends->count() + $vacationDays - 1);
+    if (isWeekend($dateTo))
+        $dateTo->addDay();
+    return $dateTo->format('Y-m-d');
 }

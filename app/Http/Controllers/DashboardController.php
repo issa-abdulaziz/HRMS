@@ -17,9 +17,9 @@ class DashboardController extends Controller
     {
         $currentMonth = date('Y-m');
 
-        $overtimeTotal = Overtime::getTotalOvertimeAmount($currentMonth);
-        $leewayTotal = Attendance::getTotalLeewayAmount($currentMonth);
-        $absenceTotal = Attendance::getTotalAbsenceAmount($currentMonth);
+        $overtimeTotal = getTotalOvertimeAmount($currentMonth);
+        $leewayTotal = getTotalLeewayAmount($currentMonth);
+        $absenceTotal = getTotalAbsenceAmount($currentMonth);
         $overall = $overtimeTotal - $leewayTotal - $absenceTotal;
 
         return view('dashboard', compact('overtimeTotal', 'absenceTotal', 'leewayTotal', 'overall'));
@@ -38,9 +38,9 @@ class DashboardController extends Controller
         });
 
         $data = $months->map(function ($month, $key) {
-            $overtimeTotal = Overtime::getTotalOvertimeAmount($month);
-            $leewayTotal = Attendance::getTotalLeewayAmount($month);
-            $absenceTotal = Attendance::getTotalAbsenceAmount($month);
+            $overtimeTotal = getTotalOvertimeAmount($month);
+            $leewayTotal = getTotalLeewayAmount($month);
+            $absenceTotal = getTotalAbsenceAmount($month);
             $overall = $overtimeTotal - $leewayTotal - $absenceTotal;
             return [
                 'overtimeTotal' => $overtimeTotal,

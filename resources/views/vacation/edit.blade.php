@@ -4,13 +4,6 @@
     <h3>Edit Vacation</h3>
     <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
   </div>
-
-  {{-- <div>
-    <input type="hidden" value="{{ $vacation->employee->getVacationDays() }}" class="vacationDays">
-    <input type="hidden" value="{{ $vacation->diffBtwDate($vacation->date_from, $vacation->date_to) }}"
-      class="thisVacationDays">
-  </div> --}}
-
   <form action="{{ route('vacation.update', $vacation->id) }}" method="POST">
     @method('PUT')
     @csrf

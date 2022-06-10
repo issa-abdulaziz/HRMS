@@ -48,7 +48,7 @@ class VacationController extends Controller
         DB::transaction(function () use ($request) {
             Vacation::create([
                 'date_from' => $request->date_from,
-                'date_to' => Vacation::getDateTo($request->date_from, $request->days),
+                'date_to' => getDateTo($request->date_from, $request->days),
                 'days' => $request->days,
                 'employee_id' => $request->employee_id,
                 'note' => $request->note ? $request->note : 'N/A',
@@ -88,7 +88,7 @@ class VacationController extends Controller
             Employee::findOrFail($request->employee_id)->increment('taken_vacations_days', $request->days - $vacation->days);
             $vacation->update([
                 'date_from' => $request->date_from,
-                'date_to' => Vacation::getDateTo($request->date_from, $request->days),
+                'date_to' => getDateTo($request->date_from, $request->days),
                 'days' => $request->days,
                 'note' => $request->note ? $request->note : 'N/A',
             ]);
