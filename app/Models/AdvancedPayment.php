@@ -19,7 +19,7 @@ class AdvancedPayment extends Model
             $query->where('date', 'LIKE', trim($params['date']) . '%');
         }
         elseif (! isset($params['date'])) {
-            $query->where('date', 'LIKE', date('Y') . '-' . date('m') . '%');
+            $query->where('date', 'LIKE', date('Y-m') . '%');
         }
         return $query;
     }

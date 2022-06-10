@@ -2,6 +2,7 @@
 
 namespace App\models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use DateTime;
 
@@ -99,7 +100,7 @@ class Employee extends Model
             })->get();
 
         $vacationDays = $vacations->map(function ($vacation) {
-            return $vacation->diffBtwDate($vacation->date_from, $vacation->date_to);
+            return Carbon::parse($vacation->date_from)->diffInDays(Carbon::parse($vacation->date_to)) + 1;
         });
 
         $totalVacationDays = $vacationDays->sum();

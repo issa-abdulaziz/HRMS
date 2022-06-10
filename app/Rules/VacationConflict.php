@@ -37,7 +37,7 @@ class VacationConflict implements Rule
     public function passes($attribute, $value)
     {
         $this->dateFrom = $value;
-        $this->dateTo = Vacation::getDateTo($value, $this->vacationDays);
+        $this->dateTo = getDateTo($value, $this->vacationDays);
         $vacation = Vacation::where('employee_id', $this->employee_id)
         ->where('id', '!=', $this->vacation_id)
         ->where(function($query) {
