@@ -45,7 +45,7 @@
                 <i class="fa fa-bell fa-2x text-light" aria-hidden="true"></i>
               </div>
               <div class="align-self-center">
-                <h6 class="text-light mt-2 mb-0">Total Leeway Hours</h6>
+                <h6 class="text-light mt-2 mb-0">Total Lateness Hours</h6>
                 <h2 class="text-white mt-1">{{ $leewayTime }}</h2>
               </div>
             </div>
@@ -327,9 +327,9 @@
                       <td>{{ $attendance->date }}</td>
                       <td>
                         @if ($attendance->present)
-                          <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
+                        <span class="badge badge-success mr-1">Present</span>
                         @else
-                          <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
+                        <span class="badge badge-danger mr-1">Not Present</span>
                         @endif
                       </td>
                       <td>{{ $attendance->time_in ? date('h:i a', strtotime($attendance->time_in)) : '--:--' }}</td>

@@ -27,12 +27,19 @@ class EmployeeRequest extends FormRequest
             'full_name' => 'required|min:3|max:50',
             'date_of_birth' => 'required|date',
             'city' => 'required|min:3|max:50',
-            'phone_number' => 'required|min:8|max:50',
+            'phone_number' => 'required|min:8 | max:20 | regex:/^([0-9\s\-\+\(\)]*)$/',
             'hired_at' => 'required|date',
             'position' => 'required|min:3|max:50',
             'salary' => 'required|integer',
             'shift_id' => 'required|exists:shifts,id,user_id,'.auth()->id(),
             'vacation_start_count_at' => 'nullable|date_format:Y-m'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'shift_id.required' => 'You must select a shift',
         ];
     }
 }

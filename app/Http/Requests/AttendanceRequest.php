@@ -58,4 +58,6 @@ class AttendanceRequest extends FormRequest
         }
         return $attributes;
     }
+
+
 }

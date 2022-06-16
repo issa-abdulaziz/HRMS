@@ -26,7 +26,7 @@
         @foreach ($employees as $employee)
           <tr>
             <td>{{ $loop->index + 1 }}</td>
-            <td><a href="{{ route('employee.show', $employee->id) }}">{{ $employee->full_name }}</a></td>
+            <td><a style="text-decoration: none;font-size:120%;text-transform: capitalize;" href="{{ route('employee.show', $employee->id) }}">{{ $employee->full_name }}</a></td>
             <td>{{ $employee->phone_number }}</td>
             <td>{{ $employee->position }}</td>
             <td>{{ $employee->getVacationDays() }}</td>
@@ -36,10 +36,14 @@
             <td>{{ $employee->salary }} {{ session('setting')->currency }}</td>
             <td>
               @if ($employee->active)
-                <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
-              @else
-                <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
-              @endif
+                {{-- <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i> --}}
+              <span class="badge badge-success mr-1">Active</span>
+
+                @else
+                {{-- <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i> --}}
+                <span class="badge badge-danger mr-1">In Active</span>
+
+                @endif
             </td>
             <td><a class="btn btn-success btn-sm" href="{{ route('employee.edit', $employee->id) }}"><i
                   class="fas fa-edit"></i></a></td>

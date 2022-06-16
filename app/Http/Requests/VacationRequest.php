@@ -44,4 +44,11 @@ class VacationRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'employee_id.required' => 'You must select an employee',
+        ];
+    }
 }

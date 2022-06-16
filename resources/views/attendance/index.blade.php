@@ -103,7 +103,8 @@
                 let badges = $('<td class="align-middle"></td>').html(
                     (employee.in_vacation ? '<span class="badge badge-info mr-1">in-vacation</span>' :
                     (!employee.has_attendance ? '<span class="badge badge-danger mr-1">no-attendance</span>' :
-                    (employee.present == 0 ? '<span class="badge badge-warning mr-1">absent</span>' : '')))
+                    (employee.has_attendance ? '<span class="badge badge-success mr-1">Attend</span>' :
+                    (employee.present == 0 ? '<span class="badge badge-warning mr-1">absent</span>' : ''))))
                 );
                 let tr = $('<tr></tr>').append(number, present, name, time_in, time_out, note, badges);
                 tr.attr('id', employee.id);
