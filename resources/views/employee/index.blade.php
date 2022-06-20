@@ -15,6 +15,7 @@
           <th data-priority="10">Vacation Days</th>
           <th data-priority="9">Vacation Start Count At</th>
           <th data-priority="11">City</th>
+          <th data-priority="12">Shift</th>
           <th data-priority="8">Hired At</th>
           <th data-priority="5">Salary</th>
           <th data-priority="6">Active</th>
@@ -32,17 +33,15 @@
             <td>{{ $employee->getVacationDays() }}</td>
             <td>{{ $employee->vacation_start_count_at }}</td>
             <td>{{ $employee->city }}</td>
+            <td>{{ $employee->shift->title }}</td>
             <td>{{ $employee->hired_at }}</td>
             <td>{{ $employee->salary }} {{ session('setting')->currency }}</td>
             <td>
               @if ($employee->active)
-                {{-- <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i> --}}
               <span class="badge badge-success mr-1">Active</span>
 
                 @else
-                {{-- <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i> --}}
                 <span class="badge badge-danger mr-1">In Active</span>
-
                 @endif
             </td>
             <td><a class="btn btn-success btn-sm" href="{{ route('employee.edit', $employee->id) }}"><i

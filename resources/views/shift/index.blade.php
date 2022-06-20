@@ -26,9 +26,9 @@
             <td>{{ $shift->leaving_time }}</td>
             <td>
               @if ($shift->across_midnight)
-                <i class="fa fa-check-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
+              <span class="badge badge-primary mr-1">Accross MidNight</span>
               @else
-                <i class="fa fa-square" style="font-size: 18px;color:rgb(0,128,255)"></i>
+              <span class="badge badge-warning mr-1">Not Accross MidNight</span>
               @endif
             </td>
             <td><a class="btn btn-success btn-sm" href="{{ route('shift.edit', $shift->id) }}"><i

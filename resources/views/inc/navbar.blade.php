@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
   <div class="container">
+    <a href="{{ route('dashboard') }}">
     <img src="{{asset('/images/mainLogo.ico')}}" alt="logo" class="navbar-brand" width="45" height="50">
+    </a>
     <a class="navbar-brand" href="{{ route('dashboard') }}">
       {{ env('APP_NAME') }}
     </a>
@@ -62,7 +64,6 @@
             </a>
 
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a>
               <a class="dropdown-item" href="{{ route('setting.index') }}">Settings</a>
                <a class="dropdown-item" href="{{ route('logout') }}" >
                 {{ __('Logout') }}

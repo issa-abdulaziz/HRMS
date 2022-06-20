@@ -59,15 +59,15 @@ class ResetPassController extends Controller
         return back()->with($data);
     }
 
-    public function resetPassView($token)
+    public function resetPassView()
     {
 
-        $query= PasswordReset::where('token',$token);
-        $row = $query->first();
-        if(!$row){
-         abort(403,'Page Expired');
-        }
-        $data['token']=$token;
+        // $query= PasswordReset::where('token',$token);
+        // $row = $query->first();
+        // if(!$row){
+        //  abort(403,'Page Expired');
+        // }
+        // $data['token']=$token;
         $data['page_title']='Reset Password';
 
         return view('Auth.ResetPassword',$data);

@@ -18,24 +18,23 @@
             <div class="content-body">
                 <div class="auth-wrapper auth-v2">
                     <div class="auth-inner row m-0">
-                        <!-- Brand logo--><a class="brand-logo" href="#">
-                            <img class="headerLogo"  src="vuexy/app-assets/images/Myimages/Logo.png" alt="">
-                            <h2 class="brand-text text-primary ms-1">Vuexy</h2>
-                        </a>
-                        <!-- /Brand logo-->
+
                         <!-- Left Text-->
                         <div class="d-none d-lg-flex col-lg-8 align-items-center p-5">
-                            <div class="w-100 d-lg-flex align-items-center justify-content-center px-5"><img class="img-fluid" src="vuexy/app-assets/images/Myimages/MainLogo.png" alt="Register V2" /></div>
+                            <div class="w-100 d-lg-flex align-items-center justify-content-center px-5">
+                                <img style="box-shadow: 5px 10px 8px 10px #d3d1d1;border-radius: 0px 150px " class="img-fluid" src="images/Employee.jpg" width="100%" height="100%" alt="Login V2" /></div>
                         </div>
                         <!-- /Left Text-->
                         <!-- Reset password-->
                         <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
                             <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
-                                <h2 class="card-title fw-bold mb-1">Reset Password 🔒</h2>
+                                <img style="margin-left: 35%" class="img-fluid" src="images/mainLogo.ico" width="20%" height="100%" alt="Login V2" />
+<br><br>
+                                <h2 class="card-title fw-bold mb-1" style="text-align: center">Reset Password 🔒</h2>
                                 <p class="card-text mb-2">Your new password must be different from previously used passwords</p>
                                 <form class="auth-reset-password-form mt-2" action="{{ route('auth.reset-password.action') }}" method="POST">
                                     @csrf
-                                    <input type="hidden" name="token" value="{{ $token }}">
+                                    {{-- <input type="hidden" name="token" value="{{ $token }}"> --}}
                                     <div class="mb-1">
                                         <div class="d-flex justify-content-between">
                                             <label class="form-label" for="reset-password-new">New Password</label>

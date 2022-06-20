@@ -34,7 +34,6 @@ Route::get('/Login',[LoginController::class,'index'])->name('login');
 Route::post('/Register-action',[RegistrationController::class,'storeUser'])->name('auth.register.action');
 Route::post('/login-action',[LoginController::class,'SignIn'])->name('auth.login.action');
 
-
 Route::get('logout', function () {
    Auth::logout();
 
@@ -82,10 +81,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ISSA
-
 Route::fallback(function () {
-  return 'This page does not exist';
+  return redirect()->route('login');
 });
 
 

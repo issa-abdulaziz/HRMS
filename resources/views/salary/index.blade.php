@@ -30,7 +30,7 @@
             <td>{{ $entry['leewayDiscount'] }} {{ session('setting')->currency }}</td>
             <td>{{ $entry['advancedPaymentAmount'] }} {{ session('setting')->currency }}</td>
             <td>{{ $entry['absentDayDiscountAmount'] }} {{ session('setting')->currency }}</td>
-            <td>{{ $entry['netSalary'] }} {{ session('setting')->currency }}</td>
+            <td class="badge-success">{{ $entry['netSalary'] }} {{ session('setting')->currency }}</td>
           </tr>
         @endforeach
     </tbody>
