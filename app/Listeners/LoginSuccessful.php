@@ -25,10 +25,10 @@ class LoginSuccessful
      * @param  \IlluminateAuthEventsLogin  $event
      * @return void
      */
-    public function handle(Login $event)
+    public function handle($event)
     {
         Setting::firstOrCreate([
-            'user_id' => auth()->id(),
+            'user_id' => auth   ()->id(),
         ],[
             'currency' => 'USD',
             'weekend' => 'Friday',

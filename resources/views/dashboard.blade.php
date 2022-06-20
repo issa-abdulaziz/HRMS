@@ -12,7 +12,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Overtime</h6>
-                <h2 class="text-white mt-1">{{ $overtimeTotal }} <small>{{ session('setting')->currency }}</small>
+                <h2 class="text-white mt-1">{{ $overtimeTotal ?? 0 }} <small>{{ session('setting')->currency }}</small>
                 </h2>
               </div>
             </div>
@@ -28,7 +28,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Attendance</h6>
-                <h2 class="text-white mt-1">{{ $absenceTotal }} <small>{{ session('setting')->currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $absenceTotal ?? 0 }} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>
@@ -43,7 +43,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Leeway</h6>
-                <h2 class="text-white mt-1">{{ $leewayTotal }} <small>{{ session('setting')->currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $leewayTotal ?? 0}} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>
@@ -58,7 +58,7 @@
               </div>
               <div class="align-self-center">
                 <h6 class="text-light mt-2 mb-0">Overall</h6>
-                <h2 class="text-white mt-1">{{ $overall }} <small>{{ session('setting')->currency }}</small></h2>
+                <h2 class="text-white mt-1">{{ $overall ?? 0 }} <small>{{ session('setting')->currency }}</small></h2>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@
             leewayData.push(element['leewayTotal']);
             overallData.push(element['overall']);
           });
-          displayData();
+           displayData();
         },
         error: function(data) {
           console.log('Error:', data);
@@ -119,7 +119,7 @@
               backgroundColor: 'rgba(153, 102, 255, 0.9)',
               borderColor: 'rgba(153, 102, 255, 0.9)',
               fill: false,
-              data: overallData,
+            //   data: overallData,
             }, {
               label: 'Overtime',
               backgroundColor: 'rgba(255, 99, 132, 0.9)',

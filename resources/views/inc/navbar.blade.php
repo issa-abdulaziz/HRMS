@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
   <div class="container">
+    <img src="{{asset('/images/mainLogo.ico')}}" alt="logo" class="navbar-brand" width="45" height="50">
     <a class="navbar-brand" href="{{ route('dashboard') }}">
       {{ env('APP_NAME') }}
     </a>
@@ -63,14 +64,13 @@
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a>
               <a class="dropdown-item" href="{{ route('setting.index') }}">Settings</a>
-              <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                    document.getElementById('logout-form').submit();">
+               <a class="dropdown-item" href="{{ route('logout') }}" >
                 {{ __('Logout') }}
               </a>
 
-              <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+              {{-- <form id="logout-form" action="{{ route('logout') }}" method="GET" class="d-none">
                 @csrf
-              </form>
+              </form> --}}
             </div>
           </li>
         @endguest

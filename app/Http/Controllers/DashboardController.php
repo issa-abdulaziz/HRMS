@@ -15,6 +15,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
         $currentMonth = date('Y-m');
 
         $overtimeTotal = getTotalOvertimeAmount($currentMonth);
@@ -54,5 +55,6 @@ class DashboardController extends Controller
             'monthsLabel' => $monthsLabel,
             'data' => $data,
         ]);
+
     }
 }
