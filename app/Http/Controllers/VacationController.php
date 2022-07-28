@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Vacation;
 use App\Models\Employee;
 use App\Http\Requests\VacationRequest;
+use App\models\Attendance;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VacationController extends Controller
@@ -19,7 +21,7 @@ class VacationController extends Controller
     {
         $params = $request->except('_token');
         $vacations = auth()->user()->vacations()->filter($params)->with('employee:id,full_name')->orderBy('date_from', 'desc')->get();
-        $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
+        $date = $request->has('date') ? $params['date'] : date('Y-m');
         return view('vacation.index', compact('vacations', 'date'));
     }
 
@@ -30,10 +32,7 @@ class VacationController extends Controller
      */
     public function create()
     {
-        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get();
-        $employees = $employees->filter(function ($employee) {
-            return $employee->canTakeVacation();
-        });
+        $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get()->where('can_take_vacation', true);
         return view('vacation.create', compact('employees'));
     }
 
@@ -46,14 +45,33 @@ class VacationController extends Controller
     public function store(VacationRequest $request)
     {
         DB::transaction(function () use ($request) {
+            $date_from = Carbon::parse($request->date_from);
+            $date_to = Carbon::parse(getDateTo($request->date_from, $request->days));
+            $totalDiffDays = $date_from->diffInDays($date_to);
             Vacation::create([
-                'date_from' => $request->date_from,
-                'date_to' => getDateTo($request->date_from, $request->days),
+                'date_from' => $date_from,
+                'date_to' => $date_to,
                 'days' => $request->days,
                 'employee_id' => $request->employee_id,
                 'note' => $request->note ? $request->note : 'N/A',
             ]);
             Employee::findOrFail($request->employee_id)->increment('taken_vacations_days', $request->days);
+            $attendances = [];
+            for ($x = 0; $x <= $totalDiffDays; $x++) {
+                $date = $date_from->copy()->addDays($x);
+                if (!isWeekend($date->format('l')))
+                    $attendances[] = [
+                        'employee_id' => $request->employee_id,
+                        'date' => $date,
+                        'present' => 0,
+                        'time_in' => '',
+                        'time_out' => '',
+                        'note' => '',
+                        'total_leeway' => 0,
+                    ];
+            }
+            Attendance::where('employee_id', $request->employee_id)->whereBetween('date', [$date_from, $date_to])->delete();
+            Attendance::insert($attendances);
         });
         return redirect()->route('vacation.index')->with('success', 'Vacation Added Successfully');
     }
@@ -68,8 +86,7 @@ class VacationController extends Controller
     {
         abort_if($vacation->employee->user_id !== auth()->id(), 403);
 
-        $vacationDays = $vacation->employee->getVacationDays();
-        $totalVacationDays = $vacationDays + $vacation->days;
+        $totalVacationDays = $vacation->employee->vacation_days + $vacation->days;
         return view('vacation.edit', compact('vacation', 'totalVacationDays'));
     }
 
@@ -86,9 +103,35 @@ class VacationController extends Controller
 
         DB::transaction(function () use ($vacation, $request) {
             Employee::findOrFail($request->employee_id)->increment('taken_vacations_days', $request->days - $vacation->days);
+
+            $date_from = Carbon::parse($request->date_from);
+            $date_to = getDateTo($request->date_from, $request->days);
+            $totalDiffDays = $date_from->diffInDays($date_to);
+
+            $attendances = [];
+            for ($x = 0; $x <= $totalDiffDays; $x++) {
+                $date = $date_from->copy()->addDays($x);
+                if (!isWeekend($date->format('l')))
+                    $attendances[] = [
+                        'employee_id' => $request->employee_id,
+                        'date' => $date,
+                        'present' => 0,
+                        'time_in' => '',
+                        'time_out' => '',
+                        'note' => '',
+                        'total_leeway' => 0,
+                    ];
+            }
+            Attendance::where('employee_id', $request->employee_id)
+            ->where(function($query) use ($date_from, $date_to, $vacation) {
+                $query->whereBetween('date', [$date_from, $date_to])
+                    ->orWhereBetween('date', [$vacation->date_from, $vacation->date_to]);
+            })->delete();
+            Attendance::insert($attendances);
+
             $vacation->update([
-                'date_from' => $request->date_from,
-                'date_to' => getDateTo($request->date_from, $request->days),
+                'date_from' => $date_from,
+                'date_to' => $date_to,
                 'days' => $request->days,
                 'note' => $request->note ? $request->note : 'N/A',
             ]);
@@ -108,6 +151,7 @@ class VacationController extends Controller
 
         DB::transaction(function() use ($vacation) {
             $vacation->employee->decrement('taken_vacations_days', $vacation->days);
+            Attendance::where('employee_id', $vacation->employee_id)->whereBetween('date', [$vacation->date_from, $vacation->date_to])->delete();
             $vacation->delete();
         });
         return redirect()->route('vacation.index')->with('success', 'Vacation Deleted Successfully');
@@ -119,8 +163,8 @@ class VacationController extends Controller
             return response()->json(['message' => 'forbiden'], 403);
 
         return response()->json([
-            'vacationStartCountAt' => $employee->getTakingVacationStartAt(),
-            'vacationDays' => $employee->getVacationDays(),
+            'vacationStartCountAt' => $employee->taking_vacation_start_at,
+            'vacationDays' => $employee->vacation_days,
         ]);
     }
 }

@@ -28,6 +28,7 @@ class SettingsController extends Controller
             'taking_vacation_allowed_after' => $request->takingVacationAllowedAfter,
             'currency' => $request->currency,
         ]);
+        session(['setting' => $setting]);
         return redirect()->route('setting.index')->with('success', 'Setting Updated Successfully');
     }
 }

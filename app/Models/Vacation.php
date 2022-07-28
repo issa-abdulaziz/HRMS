@@ -2,6 +2,7 @@
 
 namespace App\models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Vacation extends Model
@@ -16,10 +17,23 @@ class Vacation extends Model
 
     public function scopeFilter($query, $params)
     {
+        $date = now();
         if (isset($params['date']) && trim($params['date'] !== '')) {
-            $query->where('date_from', 'LIKE', trim($params['date']) . '%')->orwhere('date_to', 'LIKE', trim($params['date']) . '%');
-        } elseif (!isset($params['date'])) {
-            $query->where('date_from', 'LIKE', date('Y-m') . '%')->orwhere('date_to', 'LIKE', date('Y-m') . '%');
+            $date = Carbon::parse($params['date']);
+            $firstDay = $date->format('Y-m-1');
+            $lastDay = $date->format('Y-m-t');
+            $query->where(function ($query) use ($firstDay, $lastDay) {
+                $query->Where(function ($query) use ($firstDay) {
+                    $query->where('date_from', '<=', $firstDay)
+                        ->where('date_to', '>=', $firstDay);
+                })->orWhere(function ($query) use ($lastDay) {
+                    $query->where('date_from', '<=', $lastDay)
+                        ->where('date_to', '>=', $lastDay);
+                })->orWhere(function ($query) use ($firstDay, $lastDay) {
+                    $query->where('date_from', '>=', $firstDay)
+                        ->where('date_to', '<=', $lastDay);
+                });
+            });
         }
         return $query;
     }

@@ -29,7 +29,7 @@
             <td><a href="{{ route('employee.show', $employee->id) }}">{{ $employee->full_name }}</a></td>
             <td>{{ $employee->phone_number }}</td>
             <td>{{ $employee->position }}</td>
-            <td>{{ $employee->getVacationDays() }}</td>
+            <td>{{ $employee->vacation_days }}</td>
             <td>{{ $employee->vacation_start_count_at }}</td>
             <td>{{ $employee->city }}</td>
             <td>{{ $employee->hired_at }}</td>

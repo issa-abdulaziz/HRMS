@@ -28,7 +28,7 @@ class AfterVacationIsAllowed implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->takingVacationAllowedAt = Employee::find($this->employee_id)->getTakingVacationStartAt();
+        $this->takingVacationAllowedAt = Employee::find($this->employee_id)->taking_vacation_start_at;
         return $value >= $this->takingVacationAllowedAt;
     }
 

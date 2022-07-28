@@ -77,7 +77,7 @@ class EmployeesController extends Controller
 
         $total = $overtimeAmount - $advancedPaymentAmount - $absentDayDiscountAmount - $leewayDiscount;
 
-        $vacationDays = $employee->getVacationDays();
+        $vacationDays = $employee->vacation_days;
         $inTimePercentage = $employee->getInTimePercentage();
 
         return view('employee.show', compact('employee', 'overtimeAmount', 'advancedPaymentAmount', 'absentDay', 'absentDayDiscountAmount', 'leewayTime', 'leewayDiscount', 'total', 'vacationDays', 'inTimePercentage'));

@@ -33,7 +33,7 @@ class VacationDaysRule implements Rule
     {
         $vacation = Vacation::find($this->vacation_id);
         $oldVacationDays = $vacation ? $vacation->days : 0;
-        $this->totalVacationDays = Employee::find($this->employee_id)->getVacationDays() + $oldVacationDays;
+        $this->totalVacationDays = Employee::find($this->employee_id)->vacation_days + $oldVacationDays;
         return $value <= $this->totalVacationDays;
     }
 

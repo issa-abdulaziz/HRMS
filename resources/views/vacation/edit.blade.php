@@ -17,7 +17,7 @@
     <div class="form-group">
       <label for="date_from">Date</label>
       <input type="date" value="{{ $vacation->date_from }}" id="date_from" name="date_from"
-        min="{{ $vacation->employee->getTakingVacationStartAt() }}" class="form-control" required>
+        min="{{ $vacation->employee->taking_vacation_start_at }}" class="form-control" required>
     </div>
     <div class="form-group">
       <label for="days">Days</label>

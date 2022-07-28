@@ -10,6 +10,7 @@ class Employee extends Model
 {
     public $timestamps = false;
     protected $guarded = [];
+    protected $appends = ['taking_vacation_start_at', 'can_take_vacation', 'vacation_days', 'hourly_price'];
 
     public function user()
     {
@@ -48,20 +49,27 @@ class Employee extends Model
         });
     }
 
-    public function getHourlyPrice()
+    public function getHourlyPriceAttribute()
     {
-        return $this->shift ? $this->salary / 30 / $this->shift->getWorkingHour() : 0;
+        return $this->shift ? $this->salary / 30 / $this->shift->working_hour : 0;
     }
-    public function getVacationDays()
+
+    public function getVacationDaysAttribute()
     {
-        $vacationStartCountAt = new DateTime($this->vacation_start_count_at);
-        $months = $vacationStartCountAt->diff(today())->y * 12 + $vacationStartCountAt->diff(today())->m;
+        $diff = Carbon::parse($this->vacation_start_count_at)->diff(today());
+        $months = $diff->y * 12 + $diff->m;
         $totalVacations = $months * session('setting')->vacation_rate;
         return ($totalVacations - $this->taken_vacations_days);
     }
-    public function getTakingVacationStartAt()
+
+    public function getTakingVacationStartAtAttribute()
     {
-        return date('Y-m-d', strtotime("+" . session('setting')->taking_vacation_allowed_after . " months", strtotime($this->vacation_start_count_at)));
+        return Carbon::parse($this->vacation_start_count_at)->addMonths(session('setting')->taking_vacation_allowed_after);
+    }
+
+    public function getCanTakeVacationAttribute()
+    {
+        return (floor($this->vacation_days) > 0) && (today() >= $this->taking_vacation_start_at);
     }
 
     public function getOvertimeAmount($month)
@@ -99,14 +107,19 @@ class Employee extends Model
                 });
             })->get();
 
-        $vacationDays = $vacations->map(function ($vacation) {
-            return Carbon::parse($vacation->date_from)->diffInDays(Carbon::parse($vacation->date_to)) + 1;
+        $vacationDays = $vacations->map(function ($vacation) use($firstDay, $lastDay) {
+            if ($vacation->date_from <= $firstDay && $vacation->date_to >= $lastDay)
+                return diffInDaysExcludingWeekend($firstDay, $lastDay);
+            if ($vacation->date_from <= $firstDay && $vacation->date_to <= $lastDay)
+                return diffInDaysExcludingWeekend($firstDay, $vacation->date_to);
+            if ($vacation->date_from >= $firstDay && $vacation->date_to >= $lastDay)
+                return diffInDaysExcludingWeekend($vacation->date_from, $lastDay);
+            // if ($vacation->date_from >= $firstDay && $vacation->date_to <= $lastDay)
+            return diffInDaysExcludingWeekend($vacation->date_from, $vacation->date_to);
         });
 
         $totalVacationDays = $vacationDays->sum();
         $absentDays = $this->getAbsentDay($month);
-        if ($absentDays < $totalVacationDays)
-            return 0;
         return number_format((($absentDays - $totalVacationDays) * $this->salary) / 30, 2);
     }
 
@@ -117,21 +130,16 @@ class Employee extends Model
 
     public function getLeewayDiscount($month)
     {
-        return number_format(($this->getTotalLeeway($month) / 60) * session('setting')->leeway_discount_rate * $this->getHourlyPrice(), 2);
+        return number_format(($this->getTotalLeeway($month) / 60) * session('setting')->leeway_discount_rate * $this->can_take_vacation, 2);
     }
 
     public function getInTimePercentage()
     {
-        $overallPresentDay = Attendance::where('employee_id', $this->id)->where('present', '1')->count();
-        $inTimeDays = Attendance::where('employee_id', $this->id)->where('present', '1')->where('total_leeway', '0')->count();
-        if ($overallPresentDay == 0)
+        $attendances = Attendance::where('employee_id', $this->id)->where('present', '1')->get();
+        $overallDays = $attendances->count();
+        $inTimeDays = $attendances->where('total_leeway', '0')->count();
+        if ($overallDays == 0)
             return '--';
-        return number_format($inTimeDays * 100 / $overallPresentDay, 2);
-    }
-
-    public function canTakeVacation()
-    {
-        $takingVacationStartAt = new DateTime($this->getTakingVacationStartAt());
-        return (floor($this->getVacationDays()) > 0) && (today() >= $takingVacationStartAt);
+        return number_format($inTimeDays * 100 / $overallDays, 2);
     }
 }

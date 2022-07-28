@@ -5,12 +5,12 @@ namespace App\models;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use DateTime;
 
 class Shift extends Model
 {
     public $timestamps = false;
     protected $guarded = [];
+    protected $appends = ['working_hour'];
 
     public function getStartingTimeAttribute($date)
     {
@@ -29,10 +29,8 @@ class Shift extends Model
     public function employees() {
         return $this->hasMany(Employee::class);
     }
-    public function getWorkingHour() {
-        $starting_time = new DateTime($this->starting_time);
-        $leaving_time = new DateTime($this->leaving_time);
-        $time_diff = $starting_time->diff($leaving_time);
-        return $time_diff->h + $time_diff->i /60;
+    public function getWorkingHourAttribute() {
+        $diffInMin = calculateDiffBtw2TimeString($this->starting_time, $this->leaving_time, $this->across_midnight);
+        return number_format($diffInMin / 60, 2);
     }
 }

@@ -122,10 +122,10 @@ class OvertimesController extends Controller
             return response()->json(['message' => 'forbiden'], 403);
 
         return response()->json([
-            'hourly_price' => $employee->getHourlyPrice(),
+            'hourly_price' => $employee->can_take_vacation,
             'salary' => $employee->salary,
             'hired_at' => $employee->hired_at,
-            'working_hour' => $employee->shift->getWorkingHour(),
+            'working_hour' => $employee->shift->working_hour,
         ]);
     }
 

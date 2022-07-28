@@ -273,7 +273,7 @@
                   @endforeach
                 </tbody>
               </table>
-            @elseif ($employee->canTakeVacation())
+            @elseif ($employee->can_take_vacation)
               <p>{{ $employee->full_name }} does not take vacation this month yet</p>
             @else
               <p>{{ $employee->full_name }} can not take vacation</p>

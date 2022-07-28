@@ -68,3 +68,16 @@ function getDateTo($date, $vacationDays)
         $dateTo->addDay();
     return $dateTo->format('Y-m-d');
 }
+
+function diffInDaysExcludingWeekend($date1, $date2)
+{
+    $dateFrom = Carbon::parse($date1);
+    $dateTo = Carbon::parse($date2);
+    $diffInDays = $dateFrom->diffInDays($dateTo);
+    $diffInDaysExcludingWeekend = 0;
+    for ($x = 0; $x <= $diffInDays; $x++) {
+        if (!isWeekend($dateFrom->copy()->addDays($x)->format('l')))
+            $diffInDaysExcludingWeekend++;
+    }
+    return $diffInDaysExcludingWeekend;
+}
