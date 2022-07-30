@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\models\Shift;
 use App\Rules\CrossMidnightTimeValidation;
+use App\Rules\IsWeekend;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class AttendanceRequest extends FormRequest
     {
         $shift = Shift::find($this->shift);
         $rules = [
-            'date' => 'required|date|date_format:Y-m-d',
+            'date' => ['required', 'date', 'date_format:Y-m-d', new IsWeekend()],
             'shift' => 'required|exists:shifts,id,user_id,' . auth()->id(),
             'attendance' => 'required|array',
             'attendance.*.employee_id' => 'required|exists:employees,id,user_id,' . auth()->id(),
