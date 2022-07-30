@@ -18,8 +18,8 @@ class OvertimesController extends Controller
     {
         $params = $request->except('_token');
         $overtimes = auth()->user()->overtimes()->filter($params)->with('employee:id,full_name')->orderBy('date', 'desc')->get();
-        $date = $request->has('date') ? $params['date'] : date('Y') . '-' . date('m');
-        return view('overtime.index')->with(['overtimes' => $overtimes, 'date' => $date]);
+        $date = $request->has('date') ? $params['date'] : date('Y-m');
+        return view('overtime.index', compact('overtimes', 'date'));
     }
 
     /**
@@ -76,7 +76,7 @@ class OvertimesController extends Controller
     {
         abort_if($overtime->employee->user_id !== auth()->id(), 403);
         $employees = auth()->user()->employees()->whereActive(1)->orderBy('full_name', 'asc')->get(['id', 'full_name']);
-        return view('overtime.edit', compact('overtime', 'employees'))->with(['overtime' => $overtime, 'employees' => $employees]);
+        return view('overtime.edit', compact('overtime', 'employees'));
     }
 
     /**
@@ -122,7 +122,7 @@ class OvertimesController extends Controller
             return response()->json(['message' => 'forbiden'], 403);
 
         return response()->json([
-            'hourly_price' => $employee->can_take_vacation,
+            'hourly_price' => $employee->hourly_price,
             'salary' => $employee->salary,
             'hired_at' => $employee->hired_at,
             'working_hour' => $employee->shift->working_hour,
