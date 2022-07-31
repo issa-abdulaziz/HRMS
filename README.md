@@ -1,7 +1,3 @@
 # HRMS
  
-Human Resource Management System. This System evaluate the
-employee net salary according to employee actual salary, overtime,
-absent day(s), leeway and pension advance. In addition to more
-features like taking vacation, exporting data, statistic and many more.
-### Platform used : Laravel 9, MySQL, HTML, CSS, Bootstrap v4, JQuery, Datatable js
+Human Resource Management System. This System evaluates the employee's net salary according to the employee's actual salary, overtime, absent day(s), leeway, and pension advance. In addition to more features like taking a vacation, exporting data, statistics, and many more.
