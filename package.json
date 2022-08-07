@@ -10,28 +10,28 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "@popperjs/core": "^2.10.2",
+        "@popperjs/core": "^2.11.5",
         "axios": "^0.25",
-        "bootstrap": "^4.0.0",
+        "bootstrap": "^4.6.2",
         "cross-env": "^7.0",
         "jquery": "^3.2",
-        "laravel-mix": "^6.0.6",
+        "laravel-mix": "^6.0.49",
         "lodash": "^4.17.19",
         "popper.js": "^1.12",
-        "postcss": "^8.1.14",
+        "postcss": "^8.4.16",
         "resolve-url-loader": "^3.1.0",
-        "sass": "^1.32.11",
+        "sass": "^1.54.3",
         "sass-loader": "^11.0.1",
-        "vue-template-compiler": "^2.6.14"
+        "vue-template-compiler": "^2.7.8"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.4",
-        "datatables.net": "^1.11.3",
-        "datatables.net-bs5": "^1.11.3",
-        "datatables.net-buttons-dt": "^2.1.1",
-        "datatables.net-dt": "^1.11.3",
-        "datatables.net-responsive-dt": "^2.2.9",
-        "jszip": "^3.7.1",
-        "pdfmake": "^0.2.4"
+        "datatables.net": "^1.12.1",
+        "datatables.net-bs5": "^1.12.1",
+        "datatables.net-buttons-dt": "^2.2.3",
+        "datatables.net-dt": "^1.12.1",
+        "datatables.net-responsive-dt": "^2.3.0",
+        "jszip": "^3.10.1",
+        "pdfmake": "^0.2.5"
     }
 }
