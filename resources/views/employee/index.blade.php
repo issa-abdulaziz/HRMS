@@ -60,7 +60,7 @@
                                                         <span class="badge badge-pill badge-danger">in-active</span>
                                                     @endif
                                                 </td>
-                                                <td>
+                                                <td class="text-right">
                                                     <a class="btn btn-primary btn-sm"
                                                         href="{{ route('employee.edit', $employee->id) }}">
                                                         <i class="fas fa-edit"></i>
